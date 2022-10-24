@@ -9,20 +9,25 @@
 #include "octoget.h"
 
 
+unsigned int concurrentDownloadNum = DEFAULT_CONCURRENT_DOWNLOAD;
+unsigned int numOfURLs = 0;
+char** URLs;         // Array of URLs
+bool qURLsAllocated = false;    // Whether or not the URL array is allocated or not.
+
 int main(int argc, char* argv[])
 {
+    signal(SIGINT, handler);
     // The threads for downloading individual files.
     //pthread_t* workers;
+    //
+    
+    if(argc==1)
+    {
+        showHelp();
+    }
+    
     
     int c;              // Option
-    unsigned int concurrentDownloadNum = DEFAULT_CONCURRENT_DOWNLOAD;
-    unsigned int numOfURLs = 0;
-    char** URLs;         // Array of URLs
-    bool qURLsAllocated = false;    // Whether or not the URL array is allocated or not.
-    
-
-
-    signal(SIGINT, handler);
     while((c = getopt(argc, argv, "c:")) != -1)
     {
         switch(c)
@@ -61,6 +66,7 @@ int main(int argc, char* argv[])
         URLIndex++;
     }
 
+
     free(URLs);
 
     return 0;
@@ -73,8 +79,11 @@ void handler(int num)
     switch(num)
     {
         case SIGINT:
-            write(STDOUT_FILENO, "SIGINT received: Quitting\n", 26);
-            
+            write(STDERR_FILENO, "SIGINT received: Quitting\n", 26);
+            if(qURLsAllocated == true)
+            {
+                free(URLs);
+            }
             exit(1);
             break;
     }
@@ -86,4 +95,5 @@ void showHelp()
            "\n"
            "-c x\tSpecify the number of concurrent downloads (Default: 4)\n"
           );
+    exit(1);
 }
