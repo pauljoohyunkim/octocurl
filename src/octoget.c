@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <unistd.h>
+#include <signal.h>
 #include <pthread.h>
 
 #include "octoget.h"
@@ -15,6 +17,12 @@ int main(int argc, char* argv[])
     int c;              // Option
     unsigned int concurrentDownloadNum = DEFAULT_CONCURRENT_DOWNLOAD;
     unsigned int numOfURLs = 0;
+    char** URLs;         // Array of URLs
+    bool qURLsAllocated = false;    // Whether or not the URL array is allocated or not.
+    
+
+
+    signal(SIGINT, handler);
     while((c = getopt(argc, argv, "c:")) != -1)
     {
         switch(c)
@@ -44,14 +52,32 @@ int main(int argc, char* argv[])
         numOfURLs++;
     }
     optind = 1;         // Reset optind to iterate through the extra arguments again.
+    qURLsAllocated = true;
+    URLs = (char**) malloc(numOfURLs * sizeof(char*));  // URLs is now an array to hold urls.
+    unsigned int URLIndex = 0;
     for(; optind < argc; optind++)
     {
-        printf("%s\n", argv[optind]);
+        URLs[URLIndex] = argv[optind];      // Copying pointer to each url to URLs array.
+        URLIndex++;
     }
 
-
+    free(URLs);
 
     return 0;
+}
+
+// Handles Interrupt Signal
+void handler(int num)
+{
+    // extern bool qURLsAllocated;
+    switch(num)
+    {
+        case SIGINT:
+            write(STDOUT_FILENO, "SIGINT received: Quitting\n", 26);
+            
+            exit(1);
+            break;
+    }
 }
 
 void showHelp()

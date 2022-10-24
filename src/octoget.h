@@ -5,6 +5,7 @@
 #define MIN_CONCURRENT_DOWNLOAD     1
 #define MAX_CONCURRENT_DOWNLOAD     100
 
+void handler(int);
 void showHelp();
 
 #endif
