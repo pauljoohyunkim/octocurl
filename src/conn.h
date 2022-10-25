@@ -1,10 +1,12 @@
 #ifndef CONN_H
 #define CONN_H
 
+// Each worker recycles Status assigned.
 typedef struct status
 {
     unsigned int nBytesToDownload;
     unsigned int nBytesDownloaded;
+    FILE* fp;
 } Status;
 
 void* queueWorker(void* ptr);
