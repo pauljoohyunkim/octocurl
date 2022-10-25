@@ -15,6 +15,8 @@ char** URLs;                    // Array of URLs
 bool qURLsAllocated = false;    // Whether or not the URL array is allocated or not.
 pthread_t* threadPtr;           // Array of Threads
 bool qThreadAllocated = false;  // Whether or not the threadPtr is allocated or not.
+Status** statuses;              // Array of Status struct pointers for each worker.
+bool qStatusAllocated = false;
 
 int main(int argc, char* argv[])
 {
@@ -69,12 +71,21 @@ int main(int argc, char* argv[])
         URLIndex++;
     }
 
+    // Status Struct Memory Allocation for each worker
+    qStatusAllocated = true;
+    statuses = (Status**) malloc(concurrentDownloadNum * sizeof(Status*));
+    // Allocating each struct
+    for(unsigned int index = 0; index < concurrentDownloadNum; index++)
+    {
+        statuses[index] = (Status*) malloc(sizeof(Status*));
+    }
+
     // Allocate pointer to threads
     qThreadAllocated = true;
     threadPtr = (pthread_t*) malloc(concurrentDownloadNum * sizeof(pthread_t));
     for(unsigned int index = 0; index < concurrentDownloadNum; index++)
     {
-        pthread_create(&threadPtr[index], NULL, curlDownload, URLs[index]);
+        pthread_create(&threadPtr[index], NULL, queueWorker, URLs[index]);
     }
 
     
@@ -90,7 +101,13 @@ int main(int argc, char* argv[])
     }
 
 
+    // Garbage Collection
     free(URLs);
+    for(unsigned int index = 0; index < concurrentDownloadNum; index++)
+    {
+        free(statuses[index]);
+    }
+    free(statuses);
     free(threadPtr);
 
     return 0;
@@ -107,6 +124,14 @@ void handler(int num)
             if(qURLsAllocated == true)
             {
                 free(URLs);
+            }
+            if(qStatusAllocated == true)
+            {
+                for(unsigned int index = 0; index < concurrentDownloadNum; index++)
+                {
+                    free(statuses[index]);
+                }
+                free(statuses);
             }
             if(qThreadAllocated == true)
             {
