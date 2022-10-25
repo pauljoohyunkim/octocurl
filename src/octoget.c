@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <pthread.h>
+#include <curl/curl.h>
 
 #include "octoget.h"
 #include "conn.h"
@@ -16,7 +17,8 @@ bool qURLsAllocated = false;    // Whether or not the URL array is allocated or 
 pthread_t* threadPtr;           // Array of Threads
 bool qThreadAllocated = false;  // Whether or not the threadPtr is allocated or not.
 Status** statuses;              // Array of Status struct pointers for each worker.
-bool qStatusAllocated = false;
+bool qStatusAllocated = false;  // Status structs allocated
+bool qCurlGlobalInitialized = false;   // Curl Global Initialization
 
 int main(int argc, char* argv[])
 {
@@ -55,6 +57,10 @@ int main(int argc, char* argv[])
         }
     }
 
+    // CURL Global Setup
+    qCurlGlobalInitialized = true;
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+
     // Iterate to count the numbers of URLs parsed through command line
     for(; optind < argc; optind++)
     {
@@ -79,9 +85,6 @@ int main(int argc, char* argv[])
     {
         statuses[index] = (Status*) malloc(sizeof(Status*));
     }
-
-    //statuses[0]->nBytesToDownload = 0;
-    //statuses[0]->nBytesDownloaded = 1;
 
     // Allocate pointer to threads
     qThreadAllocated = true;
@@ -112,6 +115,9 @@ int main(int argc, char* argv[])
     }
     free(statuses);
     free(threadPtr);
+
+    // Curl Exit
+    curl_global_cleanup();
 
     return 0;
 }
