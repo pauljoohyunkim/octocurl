@@ -7,12 +7,14 @@
 #include <pthread.h>
 
 #include "octoget.h"
-
+#include "conn.h"
 
 unsigned int concurrentDownloadNum = DEFAULT_CONCURRENT_DOWNLOAD;
 unsigned int numOfURLs = 0;
-char** URLs;         // Array of URLs
+char** URLs;                    // Array of URLs
 bool qURLsAllocated = false;    // Whether or not the URL array is allocated or not.
+pthread_t* threadPtr;           // Array of Threads
+bool qThreadAllocated = false;  // Whether or not the threadPtr is allocated or not.
 
 int main(int argc, char* argv[])
 {
@@ -63,11 +65,33 @@ int main(int argc, char* argv[])
     for(; optind < argc; optind++)
     {
         URLs[URLIndex] = argv[optind];      // Copying pointer to each url to URLs array.
+        printf("Added to queue: %s\n", URLs[URLIndex]);
         URLIndex++;
+    }
+
+    // Allocate pointer to threads
+    qThreadAllocated = true;
+    threadPtr = (pthread_t*) malloc(concurrentDownloadNum * sizeof(pthread_t));
+    for(unsigned int index = 0; index < concurrentDownloadNum; index++)
+    {
+        pthread_create(&threadPtr[index], NULL, curlDownload, URLs[index]);
+    }
+
+    
+
+
+
+
+
+    // Wait until all threads are closed.
+    for(unsigned int index = 0; index < concurrentDownloadNum; index++)
+    {
+        pthread_join(threadPtr[index], NULL);
     }
 
 
     free(URLs);
+    free(threadPtr);
 
     return 0;
 }
@@ -83,6 +107,10 @@ void handler(int num)
             if(qURLsAllocated == true)
             {
                 free(URLs);
+            }
+            if(qThreadAllocated == true)
+            {
+                free(threadPtr);
             }
             exit(1);
             break;

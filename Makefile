@@ -4,7 +4,7 @@ LDFLAGS=-lpthread -lcurl
 SRCDIR=src
 OBJDIR=obj
 BINDIR=bin
-OBJS = $(OBJDIR)/octoget.o
+OBJS = $(OBJDIR)/octoget.o $(OBJDIR)/conn.o
 BIN = $(BINDIR)/octoget
 
 all: $(BIN)
