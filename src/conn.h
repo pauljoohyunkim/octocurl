@@ -8,6 +8,6 @@ typedef struct status
 } Status;
 
 void* queueWorker(void* ptr);
-void curlDownload(char* url);
+void curlDownload(char* url, char* filename);
 
 #endif

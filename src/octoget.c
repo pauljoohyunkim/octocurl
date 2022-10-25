@@ -80,12 +80,15 @@ int main(int argc, char* argv[])
         statuses[index] = (Status*) malloc(sizeof(Status*));
     }
 
+    //statuses[0]->nBytesToDownload = 0;
+    //statuses[0]->nBytesDownloaded = 1;
+
     // Allocate pointer to threads
     qThreadAllocated = true;
     threadPtr = (pthread_t*) malloc(concurrentDownloadNum * sizeof(pthread_t));
     for(unsigned int index = 0; index < concurrentDownloadNum; index++)
     {
-        pthread_create(&threadPtr[index], NULL, queueWorker, URLs[index]);
+        pthread_create(&threadPtr[index], NULL, queueWorker, statuses[index]);
     }
 
     

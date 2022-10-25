@@ -7,7 +7,8 @@ extern char** URLs;
 // queueWorker takes void pointer and then casts to Status struct pointer.
 void* queueWorker(void* ptr)
 {
-    printf("Hello World!\n");
+    Status* statusPtr = (Status*) ptr;
+    printf("Hello World! %u %u\n", statusPtr->nBytesToDownload, statusPtr->nBytesDownloaded);
 
     return NULL;
 }
