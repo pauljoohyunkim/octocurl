@@ -22,5 +22,5 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c
 clean:
 	$(RM) -r $(BINDIR)/* $(OBJDIR)/*
 
-debug:
+debug: $(BIN)
 	gdb $(BIN)
