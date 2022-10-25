@@ -15,6 +15,8 @@ char** URLs;                    // Array of URLs
 bool qURLsAllocated = false;    // Whether or not the URL array is allocated or not.
 pthread_t* threadPtr;           // Array of Threads
 bool qThreadAllocated = false;  // Whether or not the threadPtr is allocated or not.
+unsigned int currentQueue = 0;
+pthread_mutex_t queueLock = PTHREAD_MUTEX_INITIALIZER;
 
 int main(int argc, char* argv[])
 {
