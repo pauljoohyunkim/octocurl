@@ -50,6 +50,7 @@ int curlDownload(char* url, char* filename, Status* statusPtr)
     // curl handler option
     curl_easy_setopt(curl, CURLOPT_URL, url);
     curl_easy_setopt(curl, CURLOPT_NOBODY, 1);  // Only get information, not the data.
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, statusPtr);
     // Get length
     curl_easy_perform(curl);
     curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, &length);
@@ -57,7 +58,7 @@ int curlDownload(char* url, char* filename, Status* statusPtr)
     // Initializing status
     statusPtr->nBytesToDownload = length;
     statusPtr->nBytesDownloaded = 0;
-    //statusPtr->fp = fopen(filename, "wb");
+    statusPtr->fp = fopen(filename, "wb");
 
     // Start downloading file
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, getData);
@@ -66,7 +67,7 @@ int curlDownload(char* url, char* filename, Status* statusPtr)
     printf("Something\n");
 
     curl_easy_cleanup(curl);
-    //fclose(statusPtr->fp);
+    fclose(statusPtr->fp);
 
     return 0;
 }
@@ -75,7 +76,7 @@ size_t getData(char* buffer, size_t itemsize, size_t nitems, void* ptr)
 {
     size_t bytes = itemsize * nitems;
     Status* statusPtr = (Status*) ptr;
-    //fwrite(buffer, itemsize, nitems, statusPtr->fp);
+    fwrite(buffer, itemsize, nitems, statusPtr->fp);
     
     printf("%s",buffer);
     return bytes;
