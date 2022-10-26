@@ -2,11 +2,13 @@
 #include <pthread.h>
 #include <curl/curl.h>
 #include <string.h>
+
 #include "conn.h"
 
 extern unsigned int concurrentDownloadNum;
 extern int numOfURLs;
 extern char** URLs;
+
 extern unsigned int queueNum;
 extern pthread_mutex_t queueLock;
 
