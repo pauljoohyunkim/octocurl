@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <curl/curl.h>
+#include <string.h>
 #include "conn.h"
 
 extern unsigned int concurrentDownloadNum;
@@ -29,7 +30,7 @@ void* queueWorker(void* ptr)
             queueNum++;
         }
         pthread_mutex_unlock(&queueLock);
-        curlDownload(URLs[currentWorkerQueue], "test.txt", statusPtr);
+        curlDownload(URLs[currentWorkerQueue], filenameFromURL(URLs[currentWorkerQueue]), statusPtr);
     }
 
     return NULL;
@@ -64,7 +65,6 @@ int curlDownload(char* url, char* filename, Status* statusPtr)
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, getData);
     curl_easy_setopt(curl, CURLOPT_NOBODY, 0);
     CURLcode result = curl_easy_perform(curl);
-    printf("Something\n");
 
     curl_easy_cleanup(curl);
     fclose(statusPtr->fp);
@@ -80,4 +80,20 @@ size_t getData(char* buffer, size_t itemsize, size_t nitems, void* ptr)
     
     printf("%s",buffer);
     return bytes;
+}
+
+// Getting filename from URL
+char* filenameFromURL(char* URLString)
+{
+    unsigned int offset = 0;
+    
+    for(unsigned int i = 0; i < strlen(URLString); i++)
+    {
+        if(URLString[i] == '/')
+        {
+            offset = i + 1;
+        }
+    }
+
+    return URLString + offset;
 }
