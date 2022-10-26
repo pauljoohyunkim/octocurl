@@ -37,10 +37,12 @@ int main(int argc, char* argv[])
     
     
     int c;              // Option
-    while((c = getopt(argc, argv, "c:")) != -1)
+    while((c = getopt(argc, argv, "hc:")) != -1)
     {
         switch(c)
         {
+            case 'h':
+                showHelp();
             case 'c':
                 char *ptr;
                 concurrentDownloadNum = strtol(optarg, &ptr, 10);
@@ -86,7 +88,8 @@ int main(int argc, char* argv[])
     // Allocating each struct
     for(unsigned int index = 0; index < concurrentDownloadNum; index++)
     {
-        statuses[index] = (Status*) malloc(sizeof(Status*));
+        //statuses[index] = (Status*) malloc(sizeof(Status*));
+        statuses[index] = (Status*) malloc(sizeof(Status));
     }
 
     // Allocate pointer to threads
