@@ -109,6 +109,8 @@ int main(int argc, char* argv[])
         pthread_join(threadPtr[index], NULL);
     }
 
+    printf("Queue finished.\n");
+
 
     // Garbage Collection
     free(URLs);

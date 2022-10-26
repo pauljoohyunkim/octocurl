@@ -80,7 +80,7 @@ size_t getData(char* buffer, size_t itemsize, size_t nitems, void* ptr)
     Status* statusPtr = (Status*) ptr;
     fwrite(buffer, itemsize, nitems, statusPtr->fp);
     
-    printf("%s",buffer);
+    //printf("%s",buffer);
     return bytes;
 }
 
