@@ -32,6 +32,7 @@ void* queueWorker(void* ptr)
             queueNum++;
         }
         pthread_mutex_unlock(&queueLock);
+        printf("Downloading %s as %s\n", URLs[currentWorkerQueue], filenameFromURL(URLs[currentWorkerQueue]));
         curlDownload(URLs[currentWorkerQueue], filenameFromURL(URLs[currentWorkerQueue]), statusPtr);
     }
 
@@ -70,6 +71,7 @@ int curlDownload(char* url, char* filename, Status* statusPtr)
 
     curl_easy_cleanup(curl);
     fclose(statusPtr->fp);
+    printf("Downloaded %s as %s\n", url, filename);
 
     return 0;
 }
