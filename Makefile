@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-g -Wall
-LDFLAGS=-lpthread -lcurl
+LDFLAGS=-lpthread -lcurl -lncurses
 SRCDIR=src
 OBJDIR=obj
 BINDIR=bin

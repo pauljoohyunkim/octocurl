@@ -4,6 +4,7 @@
 #include <pthread.h>
 #include <curl/curl.h>
 #include <string.h>
+#include <ncurses.h>
 
 #include "conn.h"
 
@@ -41,7 +42,7 @@ void* queueWorker(void* ptr)
         pthread_mutex_unlock(&queueLock);
         statusPtr->url = URLs[currentWorkerQueue];
         statusPtr->filename = filenameFromURL(statusPtr->url);
-        printf("Downloading %s as %s\n", statusPtr->url, statusPtr->filename);
+        printw("Downloading %s as %s\n", statusPtr->url, statusPtr->filename);
         curlDownload(URLs[currentWorkerQueue], filenameFromURL(URLs[currentWorkerQueue]), statusPtr);
     }
 
@@ -85,15 +86,15 @@ void* workerStatViewer(void* ptr)
                     // Division by Zero
                     if(statuses[index]->nBytesToDownload)
                     {
-                        printf("%s: %.2f%%\t", statuses[index]->filename, ((float) (statuses[index]->nBytesDownloaded)) / (statuses[index]->nBytesToDownload) * 100);
+                        printw("%s: %.2f%%\t", statuses[index]->filename, ((float) (statuses[index]->nBytesDownloaded)) / (statuses[index]->nBytesToDownload) * 100);
                     }
                     else
                     {
-                        printf("%s: N/A\t", statuses[index]->filename);
+                        printw("%s: N/A\t", statuses[index]->filename);
                     }
                 }
             }
-            fflush(stdout);
+            //fflush(stdout);
             //for(int index = 0; index < concurrentDownloadNum; index++)
             //{
             //    printf("%s: %.2f%%\n", statuses[index]->filename, ((float) (statuses[index]->nBytesDownloaded)) / (statuses[index]->nBytesToDownload) * 100);
@@ -163,7 +164,7 @@ int curlDownload(char* url, char* filename, Status* statusPtr)
 
     curl_easy_cleanup(curl);
     fclose(statusPtr->fp);
-    printf("Downloaded %s as %s\n", url, filename);
+    printw("Downloaded %s as %s\n", url, filename);
 
     return 0;
 }
