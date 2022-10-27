@@ -2,8 +2,8 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <pthread.h>
-#include <curl/curl.h>
 #include <string.h>
+#include <curl/curl.h>
 
 #include "conn.h"
 
@@ -53,6 +53,7 @@ void* workerStatViewer(void* ptr)
 {
     // Checking if all workers are inactive.
     bool areAllWorkersInactive = false;
+
     while(1)
     {
         sleep(1);
@@ -77,12 +78,6 @@ void* workerStatViewer(void* ptr)
         {
             break;
         }
-
-        // Here we show information about the download.
-        //for(int index = 0; index < concurrentDownloadNum; index++)
-        //{
-        //    if(
-        //}
 
     }
 
