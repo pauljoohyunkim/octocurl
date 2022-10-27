@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include <pthread.h>
 #include <curl/curl.h>
 #include <string.h>
@@ -9,6 +10,8 @@ extern unsigned int concurrentDownloadNum;
 extern int numOfURLs;
 extern char** URLs;
 
+extern Status** statuses;
+
 extern unsigned int queueNum;
 extern pthread_mutex_t queueLock;
 
@@ -18,6 +21,9 @@ void* queueWorker(void* ptr)
     Status* statusPtr = (Status*) ptr;
     unsigned int currentWorkerQueue;
     //printf("Hello World! %u %u\n", statusPtr->nBytesToDownload, statusPtr->nBytesDownloaded);
+
+    // Flag worker as active
+    statusPtr->qWorkerActive = true;
     while(1)
     {
         pthread_mutex_lock(&queueLock);
@@ -36,6 +42,26 @@ void* queueWorker(void* ptr)
         curlDownload(URLs[currentWorkerQueue], filenameFromURL(URLs[currentWorkerQueue]), statusPtr);
     }
 
+    // Flag worker as inactive
+    statusPtr->qWorkerActive = false;
+    return NULL;
+}
+
+// Shows progress of each worker
+void* workerStatViewer(void* ptr)
+{
+    bool isAllWorkerDone = false;
+    while(isAllWorkerDone == false)
+    {
+        // Check if all workers are inactive.
+        //for(int index = 0; index < concurrentDownloadNum; index++)
+        //{
+        //    isAllWorkerDone = isAllWorkerDone && statuses[index]->qWorkerActive;
+        //}
+        //isAllWorkerDone = !isAllWorkerDone;
+    }
+
+    printf("Done!\n");
     return NULL;
 }
 

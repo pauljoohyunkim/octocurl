@@ -94,26 +94,27 @@ int main(int argc, char* argv[])
     // Allocating each struct
     for(unsigned int index = 0; index < concurrentDownloadNum; index++)
     {
-        //statuses[index] = (Status*) malloc(sizeof(Status*));
+        // Allocate status struct for each worker.
         statuses[index] = (Status*) malloc(sizeof(Status));
+        // Flag each worker as active
+        statuses[index]->qWorkerActive = true;
     }
 
     // Allocate pointer to threads
     qThreadAllocated = true;
-    threadPtr = (pthread_t*) malloc(concurrentDownloadNum * sizeof(pthread_t));
+    threadPtr = (pthread_t*) malloc((concurrentDownloadNum + 1) * sizeof(pthread_t));
     for(unsigned int index = 0; index < concurrentDownloadNum; index++)
     {
         pthread_create(&threadPtr[index], NULL, queueWorker, statuses[index]);
     }
-
-    
+    pthread_create(&threadPtr[concurrentDownloadNum], NULL, workerStatViewer, NULL);
 
 
 
 
 
     // Wait until all threads are closed.
-    for(unsigned int index = 0; index < concurrentDownloadNum; index++)
+    for(unsigned int index = 0; index <= concurrentDownloadNum; index++)
     {
         pthread_join(threadPtr[index], NULL);
     }
