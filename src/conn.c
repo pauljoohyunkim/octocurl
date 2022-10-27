@@ -51,11 +51,15 @@ void* queueWorker(void* ptr)
 // Shows progress of each worker
 void* workerStatViewer(void* ptr)
 {
+    // Checking if all workers are inactive.
     bool areAllWorkersInactive = false;
     while(1)
     {
         sleep(1);
         // Check if all workers are inactive.
+        // Iterate through statuses and if one of them are true, one of the workers is active,
+        // hence areAllWorkersInactive is false.
+        // Otherwise, it is true.
         for(int index = 0; index < concurrentDownloadNum; index++)
         {
             if(statuses[index]->qWorkerActive == true)
@@ -73,14 +77,16 @@ void* workerStatViewer(void* ptr)
         {
             break;
         }
+
+        // Here we show information about the download.
         //for(int index = 0; index < concurrentDownloadNum; index++)
         //{
-        //    isAllWorkerDone = isAllWorkerDone && statuses[index]->qWorkerActive;
+        //    if(
         //}
-        //isAllWorkerDone = !isAllWorkerDone;
+
     }
 
-    printf("Done!\n");
+    printf("All workers finished!\n");
     return NULL;
 }
 
