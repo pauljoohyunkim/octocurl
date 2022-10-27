@@ -13,7 +13,7 @@ extern char** URLs;
 
 extern Status** statuses;
 
-extern unsigned int queueNum;
+extern unsigned int queueNum;       // This keeps track of which url to produce next.
 extern pthread_mutex_t queueLock;
 
 // queueWorker takes void pointer and then casts to Status struct pointer.
@@ -79,12 +79,17 @@ void* workerStatViewer(void* ptr)
             printf("\r");
             for(int index = 0; index < concurrentDownloadNum; index++)
             {
-                if(statuses[index]->nBytesToDownload)
+                if(statuses[index]->qWorkerActive)
                 {
-                    printf("%s: %.2f%%\t", statuses[index]->filename, ((float) (statuses[index]->nBytesDownloaded)) / (statuses[index]->nBytesToDownload) * 100);
+                    if(statuses[index]->nBytesToDownload)
+                    {
+                        printf("%s: %.2f%%\t", statuses[index]->filename, ((float) (statuses[index]->nBytesDownloaded)) / (statuses[index]->nBytesToDownload) * 100);
+                    }
+                    else
+                    {
+                        printf("%s: N/A\t", statuses[index]->filename);
+                    }
                 }
-                else
-                    printf("%s: N/A\t", statuses[index]->filename);
             }
             fflush(stdout);
             //for(int index = 0; index < concurrentDownloadNum; index++)
@@ -137,8 +142,8 @@ int curlDownload(char* url, char* filename, Status* statusPtr)
     if(statusPtr->fp == NULL)
     {
         fprintf(stderr, "Cannot open %s for writing. Check if you have write permission on the directory?\n", filename);
-    curl_easy_cleanup(curl);
-    return CURLDOWN_WRITEOPENERROR;
+        curl_easy_cleanup(curl);
+        return CURLDOWN_WRITEOPENERROR;
     }
 
     // Start downloading file
@@ -148,7 +153,7 @@ int curlDownload(char* url, char* filename, Status* statusPtr)
 
     if(curlcode != CURLE_OK)
     {
-        fprintf(stderr, "Download failed for %s from %s\n", filename, url);
+        fprintf(stderr, "Download failed for %s from %s. CURLCODE=%d\n", filename, url, curlcode);
         curl_easy_cleanup(curl);
         fclose(statusPtr->fp);
         return CURLDOWN_DOWNLOADFAIL;
