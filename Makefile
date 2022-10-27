@@ -25,6 +25,21 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c
 test: $(BIN)
 	$(BIN) http://212.183.159.230/5MB.zip http://212.183.159.230/10MB.zip http://212.183.159.230/20MB.zip http://212.183.159.230/50MB.zip
 
+test1: $(BIN)
+	$(BIN) -c 1 http://212.183.159.230/5MB.zip http://212.183.159.230/10MB.zip http://212.183.159.230/20MB.zip http://212.183.159.230/50MB.zip
+
+test2: $(BIN)
+	$(BIN) -c 2 http://212.183.159.230/5MB.zip http://212.183.159.230/10MB.zip http://212.183.159.230/20MB.zip http://212.183.159.230/50MB.zip
+
+test3: $(BIN)
+	$(BIN) -c 3 http://212.183.159.230/5MB.zip http://212.183.159.230/10MB.zip http://212.183.159.230/20MB.zip http://212.183.159.230/50MB.zip
+
+test4: $(BIN)
+	$(BIN) -c 4 http://212.183.159.230/5MB.zip http://212.183.159.230/10MB.zip http://212.183.159.230/20MB.zip http://212.183.159.230/50MB.zip
+
+test5: $(BIN)
+	$(BIN) -c 5 http://212.183.159.230/5MB.zip http://212.183.159.230/10MB.zip http://212.183.159.230/20MB.zip http://212.183.159.230/50MB.zip
+	
 testclean:
 	$(RM) *.zip
 

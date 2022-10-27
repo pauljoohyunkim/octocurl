@@ -6,6 +6,8 @@ typedef struct status
 {
     unsigned int nBytesToDownload;
     unsigned int nBytesDownloaded;
+    char* url;
+    char* filename;
     bool qWorkerActive;
     FILE* fp;
 } Status;

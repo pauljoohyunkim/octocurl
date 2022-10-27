@@ -39,11 +39,15 @@ void* queueWorker(void* ptr)
             queueNum++;
         }
         pthread_mutex_unlock(&queueLock);
-        printf("Downloading %s as %s\n", URLs[currentWorkerQueue], filenameFromURL(URLs[currentWorkerQueue]));
+        statusPtr->url = URLs[currentWorkerQueue];
+        statusPtr->filename = filenameFromURL(statusPtr->url);
+        printf("Downloading %s as %s\n", statusPtr->url, statusPtr->filename);
         curlDownload(URLs[currentWorkerQueue], filenameFromURL(URLs[currentWorkerQueue]), statusPtr);
     }
 
     // Flag worker as inactive
+    // This is used for the workerStatViewer thread to monitor whether or not all the workers
+    // are active or not.
     statusPtr->qWorkerActive = false;
     return NULL;
 }
@@ -77,13 +81,6 @@ void* workerStatViewer(void* ptr)
         {
             break;
         }
-
-        // Here we show information about the download.
-        //for(int index = 0; index < concurrentDownloadNum; index++)
-        //{
-        //    if(
-        //}
-
     }
 
     printf("All workers finished!\n");
