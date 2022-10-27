@@ -75,6 +75,22 @@ void* workerStatViewer(void* ptr)
         }
         if(areAllWorkersInactive == false)
         {
+            // Display progress.
+            printf("\r");
+            for(int index = 0; index < concurrentDownloadNum; index++)
+            {
+                if(statuses[index]->nBytesToDownload)
+                {
+                    printf("%s: %.2f%%\t", statuses[index]->filename, ((float) (statuses[index]->nBytesDownloaded)) / (statuses[index]->nBytesToDownload) * 100);
+                }
+                else
+                    printf("%s: N/A\t", statuses[index]->filename);
+            }
+            fflush(stdout);
+            //for(int index = 0; index < concurrentDownloadNum; index++)
+            //{
+            //    printf("%s: %.2f%%\n", statuses[index]->filename, ((float) (statuses[index]->nBytesDownloaded)) / (statuses[index]->nBytesToDownload) * 100);
+            //}
             continue;
         }
         else
@@ -149,6 +165,7 @@ size_t getData(char* buffer, size_t itemsize, size_t nitems, void* ptr)
 {
     size_t bytes = itemsize * nitems;
     Status* statusPtr = (Status*) ptr;
+    statusPtr->nBytesDownloaded += bytes;
     fwrite(buffer, itemsize, nitems, statusPtr->fp);
     
     //printf("%s",buffer);
