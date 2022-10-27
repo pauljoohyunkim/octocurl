@@ -14,6 +14,7 @@ typedef struct status
 
 void* queueWorker(void* ptr);
 void* workerStatViewer(void* ptr);
+void progressBar(float percentage);
 int curlDownload(char* url, char* filename, Status* ptr);
 size_t getData(char* buffer, size_t itemsize, size_t nitems, void* statusPtr);
 char* filenameFromURL(char* URLString);

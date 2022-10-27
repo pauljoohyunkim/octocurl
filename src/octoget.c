@@ -6,6 +6,7 @@
 #include <signal.h>
 #include <pthread.h>
 #include <curl/curl.h>
+#include <ncurses.h>
 
 #include "octoget.h"
 #include "conn.h"
@@ -23,6 +24,7 @@ bool qCurlGlobalInitialized = false;   // Curl Global Initialization
 pthread_mutex_t queueLock = PTHREAD_MUTEX_INITIALIZER;      // Mutex Lock for Worker Queue Read
 unsigned int* URLArgIndices;    // Indicies from argv which correspond to URL
 bool qURLArgIndicesAllocated = false;
+int terminalWidth;                 // The columns and rows for ncurses
 
 int main(int argc, char* argv[])
 {
@@ -31,6 +33,8 @@ int main(int argc, char* argv[])
 
     signal(SIGINT, handler);
 
+    // ncurses window start
+    initscr();
     // Allocate index array for URL arguments.
     qURLArgIndicesAllocated = true;
     URLArgIndices = (unsigned int*) malloc(argc * sizeof(unsigned int));
@@ -59,7 +63,8 @@ int main(int argc, char* argv[])
                 // if(concurrentDownloadNum >= MIN_CONCURRENT_DOWNLOAD && concurrentDownloadNum <= MAX_CONCURRENT_DOWNLOAD && ptr == optarg) (MIGHT NEED TO CHECK FOR STRTOL RETURN SUCCESS)
                 if(concurrentDownloadNum >= MIN_CONCURRENT_DOWNLOAD && concurrentDownloadNum <= MAX_CONCURRENT_DOWNLOAD)
                 {
-                    printf("The number of concurrent download workers set to %u.\n", concurrentDownloadNum);
+                    printw("The number of concurrent download workers set to %u.\n", concurrentDownloadNum);
+                    refresh();
                 }
                 else
                 {
@@ -84,8 +89,9 @@ int main(int argc, char* argv[])
     for(int index = 0; index < numOfURLs; index++)
     {
         URLs[index] = argv[URLArgIndices[index]];      // Copying pointer to each url to URLs array.
-        printf("Added to queue: %s\n", URLs[index]);
+        printw("Added to queue: %s\n", URLs[index]);
     }
+    refresh();
     // ARGUMENT PARSING END
 
     // Status Struct Memory Allocation for each worker
@@ -119,7 +125,8 @@ int main(int argc, char* argv[])
         pthread_join(threadPtr[index], NULL);
     }
 
-    printf("Queue finished.\n");
+    printw("Queue finished.\n");
+    refresh();
 
 
     // Garbage Collection
@@ -135,6 +142,8 @@ int main(int argc, char* argv[])
     // Curl Exit
     curl_global_cleanup();
 
+    // ncurses end windows
+    endwin();
     return 0;
 }
 
@@ -166,6 +175,7 @@ void handler(int num)
             {
                 free(threadPtr);
             }
+            endwin();
             exit(1);
             break;
     }
@@ -177,5 +187,6 @@ void showHelp()
            "\n"
            "-c x\tSpecify the number of concurrent downloads (Default: 4)\n"
           );
+    endwin();
     exit(1);
 }

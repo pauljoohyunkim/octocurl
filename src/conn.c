@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <math.h>
 #include <pthread.h>
 #include <curl/curl.h>
 #include <string.h>
+#include <ncurses.h>
 
 #include "conn.h"
 
@@ -13,8 +15,10 @@ extern char** URLs;
 
 extern Status** statuses;
 
-extern unsigned int queueNum;
+extern unsigned int queueNum;       // This keeps track of which url to produce next.
 extern pthread_mutex_t queueLock;
+
+extern int terminalWidth;              // ncurses terminal size
 
 // queueWorker takes void pointer and then casts to Status struct pointer.
 void* queueWorker(void* ptr)
@@ -41,7 +45,7 @@ void* queueWorker(void* ptr)
         pthread_mutex_unlock(&queueLock);
         statusPtr->url = URLs[currentWorkerQueue];
         statusPtr->filename = filenameFromURL(statusPtr->url);
-        printf("Downloading %s as %s\n", statusPtr->url, statusPtr->filename);
+        printw("Downloading %s as %s\n", statusPtr->url, statusPtr->filename);
         curlDownload(URLs[currentWorkerQueue], filenameFromURL(URLs[currentWorkerQueue]), statusPtr);
     }
 
@@ -60,6 +64,8 @@ void* workerStatViewer(void* ptr)
     while(1)
     {
         sleep(1);
+        clear();            // clear ncurses screen
+        terminalWidth = getmaxx(stdscr);    // gets terminal width to take changing window size into account.
         // Check if all workers are inactive.
         // Iterate through statuses and if one of them are true, one of the workers is active,
         // hence areAllWorkersInactive is false.
@@ -75,6 +81,27 @@ void* workerStatViewer(void* ptr)
         }
         if(areAllWorkersInactive == false)
         {
+            // Display progress.
+            //printf("\r");
+            for(int index = 0; index < concurrentDownloadNum; index++)
+            {
+                // Only show active workers
+                if(statuses[index]->qWorkerActive)
+                {
+                    // Division by Zero
+                    if(statuses[index]->nBytesToDownload)
+                    {
+                        float percentage = ((float) (statuses[index]->nBytesDownloaded)) / (statuses[index]->nBytesToDownload) * 100;
+                        printw("Worker %i (%s): %.2f%%\n", index, statuses[index]->filename, percentage);
+                        progressBar(percentage);
+                    }
+                    else
+                    {
+                        printw("Worker %i (%s): N/A\n", index, statuses[index]->filename);
+                    }
+                }
+            }
+            refresh();
             continue;
         }
         else
@@ -83,8 +110,27 @@ void* workerStatViewer(void* ptr)
         }
     }
 
-    printf("All workers finished!\n");
+    printw("All workers finished!\n");
+    refresh();
+
     return NULL;
+}
+
+// Prints a terminal progress bar
+void progressBar(float percentage)
+{
+    int progressBarLength = (int) floor(terminalWidth * 0.6);
+    int numOfStars = (int) floor(percentage * progressBarLength / 100);
+    printw("\t[");
+    for(int i = 0; i < numOfStars; i++)
+    {
+        printw("*");
+    }
+    for(int i = 0; i < progressBarLength - numOfStars; i++)
+    {
+        printw(" ");
+    }
+    printw("]\t [%.2f%%]\n", percentage);
 }
 
 int curlDownload(char* url, char* filename, Status* statusPtr)
@@ -121,8 +167,8 @@ int curlDownload(char* url, char* filename, Status* statusPtr)
     if(statusPtr->fp == NULL)
     {
         fprintf(stderr, "Cannot open %s for writing. Check if you have write permission on the directory?\n", filename);
-    curl_easy_cleanup(curl);
-    return CURLDOWN_WRITEOPENERROR;
+        curl_easy_cleanup(curl);
+        return CURLDOWN_WRITEOPENERROR;
     }
 
     // Start downloading file
@@ -132,7 +178,7 @@ int curlDownload(char* url, char* filename, Status* statusPtr)
 
     if(curlcode != CURLE_OK)
     {
-        fprintf(stderr, "Download failed for %s from %s\n", filename, url);
+        fprintf(stderr, "Download failed for %s from %s. CURLCODE=%d\n", filename, url, curlcode);
         curl_easy_cleanup(curl);
         fclose(statusPtr->fp);
         return CURLDOWN_DOWNLOADFAIL;
@@ -140,7 +186,8 @@ int curlDownload(char* url, char* filename, Status* statusPtr)
 
     curl_easy_cleanup(curl);
     fclose(statusPtr->fp);
-    printf("Downloaded %s as %s\n", url, filename);
+    printw("Downloaded %s as %s\n", url, filename);
+    refresh();
 
     return 0;
 }
@@ -149,6 +196,7 @@ size_t getData(char* buffer, size_t itemsize, size_t nitems, void* ptr)
 {
     size_t bytes = itemsize * nitems;
     Status* statusPtr = (Status*) ptr;
+    statusPtr->nBytesDownloaded += bytes;
     fwrite(buffer, itemsize, nitems, statusPtr->fp);
     
     //printf("%s",buffer);
