@@ -8,7 +8,11 @@ If you have sufficient bandwidth, you can download multiple files, each with mul
 >
 > -c x    Specify the number of concurrent downloads (Default: 4)
 
-## How to compile
+## Build
+### Prerequisite
+You need ncurses and pthreads library to compile this.
+
+### Compilation (Building from Source)
 Currently, installation is not automatic.
 
 Compiling for development can be done by issuing

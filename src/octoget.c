@@ -24,6 +24,7 @@ bool qCurlGlobalInitialized = false;   // Curl Global Initialization
 pthread_mutex_t queueLock = PTHREAD_MUTEX_INITIALIZER;      // Mutex Lock for Worker Queue Read
 unsigned int* URLArgIndices;    // Indicies from argv which correspond to URL
 bool qURLArgIndicesAllocated = false;
+int terminalWidth;                 // The columns and rows for ncurses
 
 int main(int argc, char* argv[])
 {
@@ -32,6 +33,7 @@ int main(int argc, char* argv[])
 
     signal(SIGINT, handler);
 
+    // ncurses window start
     initscr();
     // Allocate index array for URL arguments.
     qURLArgIndicesAllocated = true;
@@ -140,7 +142,7 @@ int main(int argc, char* argv[])
     // Curl Exit
     curl_global_cleanup();
 
-    getch();
+    // ncurses end windows
     endwin();
     return 0;
 }
@@ -173,6 +175,7 @@ void handler(int num)
             {
                 free(threadPtr);
             }
+            endwin();
             exit(1);
             break;
     }
@@ -184,5 +187,6 @@ void showHelp()
            "\n"
            "-c x\tSpecify the number of concurrent downloads (Default: 4)\n"
           );
+    endwin();
     exit(1);
 }

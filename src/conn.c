@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <math.h>
 #include <pthread.h>
 #include <curl/curl.h>
 #include <string.h>
@@ -16,6 +17,8 @@ extern Status** statuses;
 
 extern unsigned int queueNum;       // This keeps track of which url to produce next.
 extern pthread_mutex_t queueLock;
+
+extern int terminalWidth;              // ncurses terminal size
 
 // queueWorker takes void pointer and then casts to Status struct pointer.
 void* queueWorker(void* ptr)
@@ -61,7 +64,8 @@ void* workerStatViewer(void* ptr)
     while(1)
     {
         sleep(1);
-        clear();
+        clear();            // clear ncurses screen
+        terminalWidth = getmaxx(stdscr);    // gets terminal width to take changing window size into account.
         // Check if all workers are inactive.
         // Iterate through statuses and if one of them are true, one of the workers is active,
         // hence areAllWorkersInactive is false.
@@ -87,7 +91,9 @@ void* workerStatViewer(void* ptr)
                     // Division by Zero
                     if(statuses[index]->nBytesToDownload)
                     {
-                        printw("Worker %i (%s): %.2f%%\n", index, statuses[index]->filename, ((float) (statuses[index]->nBytesDownloaded)) / (statuses[index]->nBytesToDownload) * 100);
+                        float percentage = ((float) (statuses[index]->nBytesDownloaded)) / (statuses[index]->nBytesToDownload) * 100;
+                        printw("Worker %i (%s): %.2f%%\n", index, statuses[index]->filename, percentage);
+                        progressBar(percentage);
                     }
                     else
                     {
@@ -96,11 +102,6 @@ void* workerStatViewer(void* ptr)
                 }
             }
             refresh();
-            //fflush(stdout);
-            //for(int index = 0; index < concurrentDownloadNum; index++)
-            //{
-            //    printf("%s: %.2f%%\n", statuses[index]->filename, ((float) (statuses[index]->nBytesDownloaded)) / (statuses[index]->nBytesToDownload) * 100);
-            //}
             continue;
         }
         else
@@ -110,7 +111,26 @@ void* workerStatViewer(void* ptr)
     }
 
     printw("All workers finished!\n");
+    refresh();
+
     return NULL;
+}
+
+// Prints a terminal progress bar
+void progressBar(float percentage)
+{
+    int progressBarLength = (int) floor(terminalWidth * 0.6);
+    int numOfStars = (int) floor(percentage * progressBarLength / 100);
+    printw("\t[");
+    for(int i = 0; i < numOfStars; i++)
+    {
+        printw("*");
+    }
+    for(int i = 0; i < progressBarLength - numOfStars; i++)
+    {
+        printw(" ");
+    }
+    printw("]\t [%.2f%%]\n", percentage);
 }
 
 int curlDownload(char* url, char* filename, Status* statusPtr)
@@ -167,6 +187,7 @@ int curlDownload(char* url, char* filename, Status* statusPtr)
     curl_easy_cleanup(curl);
     fclose(statusPtr->fp);
     printw("Downloaded %s as %s\n", url, filename);
+    refresh();
 
     return 0;
 }
