@@ -20,27 +20,37 @@ bool qThreadAllocated = false;  // Whether or not the threadPtr is allocated or 
 Status** statuses;              // Array of Status struct pointers for each worker.
 bool qStatusAllocated = false;  // Status structs allocated
 bool qCurlGlobalInitialized = false;   // Curl Global Initialization
-pthread_mutex_t queueLock = PTHREAD_MUTEX_INITIALIZER;
-
+pthread_mutex_t queueLock = PTHREAD_MUTEX_INITIALIZER;      // Mutex Lock for Worker Queue Read
+unsigned int* URLArgIndices;    // Indicies from argv which correspond to URL
+bool qURLArgIndicesAllocated = false;
 
 int main(int argc, char* argv[])
 {
+    // Array of indices for URL arguments.
+    int c;              // Command line short options
+
     signal(SIGINT, handler);
-    // The threads for downloading individual files.
-    //pthread_t* workers;
-    //
+
+    // Allocate index array for URL arguments.
+    qURLArgIndicesAllocated = true;
+    URLArgIndices = (unsigned int*) malloc(argc * sizeof(unsigned int));
+    // CURL Global Setup
+    qCurlGlobalInitialized = true;
+    curl_global_init(CURL_GLOBAL_DEFAULT);
     
+    // No argument specified -> Help Menu
     if(argc==1)
     {
         showHelp();
     }
     
-    
-    int c;              // Option
-    while((c = getopt(argc, argv, "c:")) != -1)
+    // ARGUMENT PARSING START
+    while((c = getopt(argc, argv, "hc:")) != -1)
     {
         switch(c)
         {
+            case 'h':
+                showHelp();
             case 'c':
                 char *ptr;
                 concurrentDownloadNum = strtol(optarg, &ptr, 10);
@@ -60,25 +70,23 @@ int main(int argc, char* argv[])
         }
     }
 
-    // CURL Global Setup
-    qCurlGlobalInitialized = true;
-    curl_global_init(CURL_GLOBAL_DEFAULT);
 
     // Iterate to count the numbers of URLs parsed through command line
     for(; optind < argc; optind++)
     {
+        URLArgIndices[numOfURLs] = optind;
         numOfURLs++;
     }
-    optind = 1;         // Reset optind to iterate through the extra arguments again.
+    //optind = 1;         // Reset optind to iterate through the extra arguments again.
     qURLsAllocated = true;
     URLs = (char**) malloc(numOfURLs * sizeof(char*));  // URLs is now an array to hold urls.
-    unsigned int URLIndex = 0;
-    for(; optind < argc; optind++)
+    //unsigned int URLIndex = 0;
+    for(int index = 0; index < numOfURLs; index++)
     {
-        URLs[URLIndex] = argv[optind];      // Copying pointer to each url to URLs array.
-        printf("Added to queue: %s\n", URLs[URLIndex]);
-        URLIndex++;
+        URLs[index] = argv[URLArgIndices[index]];      // Copying pointer to each url to URLs array.
+        printf("Added to queue: %s\n", URLs[index]);
     }
+    // ARGUMENT PARSING END
 
     // Status Struct Memory Allocation for each worker
     qStatusAllocated = true;
@@ -86,28 +94,32 @@ int main(int argc, char* argv[])
     // Allocating each struct
     for(unsigned int index = 0; index < concurrentDownloadNum; index++)
     {
-        statuses[index] = (Status*) malloc(sizeof(Status*));
+        // Allocate status struct for each worker.
+        statuses[index] = (Status*) malloc(sizeof(Status));
+        // Flag each worker as active
+        statuses[index]->qWorkerActive = true;
     }
 
     // Allocate pointer to threads
     qThreadAllocated = true;
-    threadPtr = (pthread_t*) malloc(concurrentDownloadNum * sizeof(pthread_t));
+    threadPtr = (pthread_t*) malloc((concurrentDownloadNum + 1) * sizeof(pthread_t));
     for(unsigned int index = 0; index < concurrentDownloadNum; index++)
     {
         pthread_create(&threadPtr[index], NULL, queueWorker, statuses[index]);
     }
-
-    
+    pthread_create(&threadPtr[concurrentDownloadNum], NULL, workerStatViewer, NULL);
 
 
 
 
 
     // Wait until all threads are closed.
-    for(unsigned int index = 0; index < concurrentDownloadNum; index++)
+    for(unsigned int index = 0; index <= concurrentDownloadNum; index++)
     {
         pthread_join(threadPtr[index], NULL);
     }
+
+    printf("Queue finished.\n");
 
 
     // Garbage Collection
@@ -118,6 +130,7 @@ int main(int argc, char* argv[])
     }
     free(statuses);
     free(threadPtr);
+    free(URLArgIndices);
 
     // Curl Exit
     curl_global_cleanup();
@@ -133,6 +146,10 @@ void handler(int num)
     {
         case SIGINT:
             write(STDERR_FILENO, "SIGINT received: Quitting\n", 26);
+            if(qURLArgIndicesAllocated == true)
+            {
+                free(URLArgIndices);
+            }
             if(qURLsAllocated == true)
             {
                 free(URLs);
