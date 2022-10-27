@@ -88,16 +88,12 @@ void* workerStatViewer(void* ptr)
                 // Only show active workers
                 if(statuses[index]->qWorkerActive)
                 {
+                    printw("Worker %i (%s) : %s\n", index, statuses[index]->filename, statuses[index]->url);
                     // Division by Zero
                     if(statuses[index]->nBytesToDownload)
                     {
                         float percentage = ((float) (statuses[index]->nBytesDownloaded)) / (statuses[index]->nBytesToDownload) * 100;
-                        printw("Worker %i (%s): %.2f%%\n", index, statuses[index]->filename, percentage);
                         progressBar(percentage);
-                    }
-                    else
-                    {
-                        printw("Worker %i (%s): N/A\n", index, statuses[index]->filename);
                     }
                 }
             }
