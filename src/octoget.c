@@ -62,6 +62,7 @@ int main(int argc, char* argv[])
                 if(concurrentDownloadNum >= MIN_CONCURRENT_DOWNLOAD && concurrentDownloadNum <= MAX_CONCURRENT_DOWNLOAD)
                 {
                     printw("The number of concurrent download workers set to %u.\n", concurrentDownloadNum);
+                    refresh();
                 }
                 else
                 {
@@ -88,6 +89,7 @@ int main(int argc, char* argv[])
         URLs[index] = argv[URLArgIndices[index]];      // Copying pointer to each url to URLs array.
         printw("Added to queue: %s\n", URLs[index]);
     }
+    refresh();
     // ARGUMENT PARSING END
 
     // Status Struct Memory Allocation for each worker
@@ -122,6 +124,7 @@ int main(int argc, char* argv[])
     }
 
     printw("Queue finished.\n");
+    refresh();
 
 
     // Garbage Collection
@@ -137,6 +140,7 @@ int main(int argc, char* argv[])
     // Curl Exit
     curl_global_cleanup();
 
+    getch();
     endwin();
     return 0;
 }

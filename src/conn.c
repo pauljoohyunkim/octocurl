@@ -61,6 +61,7 @@ void* workerStatViewer(void* ptr)
     while(1)
     {
         sleep(1);
+        clear();
         // Check if all workers are inactive.
         // Iterate through statuses and if one of them are true, one of the workers is active,
         // hence areAllWorkersInactive is false.
@@ -77,7 +78,7 @@ void* workerStatViewer(void* ptr)
         if(areAllWorkersInactive == false)
         {
             // Display progress.
-            printf("\r");
+            //printf("\r");
             for(int index = 0; index < concurrentDownloadNum; index++)
             {
                 // Only show active workers
@@ -86,14 +87,15 @@ void* workerStatViewer(void* ptr)
                     // Division by Zero
                     if(statuses[index]->nBytesToDownload)
                     {
-                        printw("%s: %.2f%%\t", statuses[index]->filename, ((float) (statuses[index]->nBytesDownloaded)) / (statuses[index]->nBytesToDownload) * 100);
+                        printw("%s: %.2f%%\n", statuses[index]->filename, ((float) (statuses[index]->nBytesDownloaded)) / (statuses[index]->nBytesToDownload) * 100);
                     }
                     else
                     {
-                        printw("%s: N/A\t", statuses[index]->filename);
+                        printw("%s: N/A\n", statuses[index]->filename);
                     }
                 }
             }
+            refresh();
             //fflush(stdout);
             //for(int index = 0; index < concurrentDownloadNum; index++)
             //{
@@ -107,7 +109,7 @@ void* workerStatViewer(void* ptr)
         }
     }
 
-    printf("All workers finished!\n");
+    printw("All workers finished!\n");
     return NULL;
 }
 
