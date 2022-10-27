@@ -79,8 +79,10 @@ void* workerStatViewer(void* ptr)
             printf("\r");
             for(int index = 0; index < concurrentDownloadNum; index++)
             {
+                // Only show active workers
                 if(statuses[index]->qWorkerActive)
                 {
+                    // Division by Zero
                     if(statuses[index]->nBytesToDownload)
                     {
                         printf("%s: %.2f%%\t", statuses[index]->filename, ((float) (statuses[index]->nBytesDownloaded)) / (statuses[index]->nBytesToDownload) * 100);
