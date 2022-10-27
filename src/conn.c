@@ -55,6 +55,7 @@ int curlDownload(char* url, char* filename, Status* statusPtr)
     curl_easy_setopt(curl, CURLOPT_URL, url);
     curl_easy_setopt(curl, CURLOPT_NOBODY, 1);  // Only get information, not the data.
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, statusPtr);
+
     // Get length
     curl_easy_perform(curl);
     curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, &length);
@@ -67,7 +68,12 @@ int curlDownload(char* url, char* filename, Status* statusPtr)
     // Start downloading file
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, getData);
     curl_easy_setopt(curl, CURLOPT_NOBODY, 0);
-    CURLcode result = curl_easy_perform(curl);
+    CURLcode curlcode = curl_easy_perform(curl);
+
+    if(curlcode != CURLE_OK)
+    {
+        fprintf(stderr, "Download failed for %s from %s\n", filename, url);
+    }
 
     curl_easy_cleanup(curl);
     fclose(statusPtr->fp);
