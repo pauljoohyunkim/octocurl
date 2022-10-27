@@ -87,11 +87,11 @@ void* workerStatViewer(void* ptr)
                     // Division by Zero
                     if(statuses[index]->nBytesToDownload)
                     {
-                        printw("%s: %.2f%%\n", statuses[index]->filename, ((float) (statuses[index]->nBytesDownloaded)) / (statuses[index]->nBytesToDownload) * 100);
+                        printw("Worker %i (%s): %.2f%%\n", index, statuses[index]->filename, ((float) (statuses[index]->nBytesDownloaded)) / (statuses[index]->nBytesToDownload) * 100);
                     }
                     else
                     {
-                        printw("%s: N/A\n", statuses[index]->filename);
+                        printw("Worker %i (%s): N/A\n", index, statuses[index]->filename);
                     }
                 }
             }
