@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <unistd.h>
 #include <stdbool.h>
 #include <pthread.h>
 #include <curl/curl.h>
@@ -50,10 +51,28 @@ void* queueWorker(void* ptr)
 // Shows progress of each worker
 void* workerStatViewer(void* ptr)
 {
-    bool isAllWorkerDone = false;
-    while(isAllWorkerDone == false)
+    bool areAllWorkersInactive = false;
+    while(1)
     {
+        sleep(1);
         // Check if all workers are inactive.
+        for(int index = 0; index < concurrentDownloadNum; index++)
+        {
+            if(statuses[index]->qWorkerActive == true)
+            {
+                areAllWorkersInactive = false;
+                break;
+            }
+            areAllWorkersInactive = true;
+        }
+        if(areAllWorkersInactive == false)
+        {
+            continue;
+        }
+        else
+        {
+            break;
+        }
         //for(int index = 0; index < concurrentDownloadNum; index++)
         //{
         //    isAllWorkerDone = isAllWorkerDone && statuses[index]->qWorkerActive;
