@@ -51,4 +51,4 @@ Note that this sort of performance gain is due to using this program in a high b
 | wget --input-file=wget-list-sysv --continue                               | 1m34.072s | Sequential downloading
 | bin/octoget $(cat wget-list-sysv)                                         | 0m29.048s | octoget with 4 workers
 | bin/octoget -c 25 $(cat wget-list-sysv)                                   | 0m20.049s | octoget with 25 workers
-| bin/octoget -c \$(cat wget-list-sysv &#124; wc -l) \$(cat wget-list-sysv) | 0m19.070s | octoget with worker for each file (Note that, above certain number of workers, there isn't much speedup; rather you might even experience some performance drops.)
+| bin/octoget -c 86 \$(cat wget-list-sysv)                                  | 0m19.070s | octoget with worker for each file (Note that, above certain number of workers, there isn't much speedup; rather you might even experience some performance drops.)
