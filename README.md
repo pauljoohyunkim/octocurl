@@ -32,3 +32,14 @@ This also creates the binary at bin/octoget.
 >
 > \# You can clean the downloaded files from testing by
 > make testclean
+
+## Example
+Downloading Linux from Scratch Packages (v11.2) as mentioned in https://linuxfromscratch.org/lfs/view/stable/chapter03/introduction.html using the command
+> wget --input-file=wget-list-sysv --continue
+
+It took 1 minute and 42.4695 seconds for all the packages to download.
+
+On the other hand, using octoget with the following command:
+> bin/octoget $(cat wget-list-sysv)
+
+it took 29.0505 seconds. (gcc was the bottleneck here, so apart from gcc, everything downloaded quickly.)
