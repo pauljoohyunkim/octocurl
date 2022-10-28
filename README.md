@@ -1,6 +1,6 @@
 # Octoget
 
-Octoget is a wrapper around CURL for bulk downloads.
+Octoget is a wrapper around CURL for bulk downloads. (I know, it is a bit misleading, but I didn't think about the name as hard as much as I spent time coding this up.)
 If you have sufficient bandwidth, you can download multiple files, each with individual worker.
 
 ## How to use
