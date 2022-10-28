@@ -1,7 +1,7 @@
 # Octoget
 
 Octoget is a wrapper around CURL for bulk downloads.
-If you have sufficient bandwidth, you can download multiple files, each with individual workers.
+If you have sufficient bandwidth, you can download multiple files, each with individual worker.
 
 ## How to use
 > Usage: octoget [options] url1 [url2] [url...]
