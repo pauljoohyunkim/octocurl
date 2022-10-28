@@ -42,4 +42,4 @@ It took 1 minute and 42.4695 seconds for all the packages to download.
 On the other hand, using octoget with the following command:
 > bin/octoget $(cat wget-list-sysv)
 
-it took 29.0505 seconds. (gcc was the bottleneck here, so apart from gcc, everything downloaded quickly.)
+it took 29.0505 seconds. (gcc was the bottleneck here, so apart from gcc, everything downloaded quickly. Without gcc, and setting worker number to 10, it only took 20.042 seconds.)
