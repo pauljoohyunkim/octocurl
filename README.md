@@ -46,6 +46,8 @@ it took 29.0505 seconds. (gcc was the bottleneck here, so apart from gcc, everyt
 
 Note that this sort of performance gain is due to using this program in a high bandwidth environment.
 
+Here are results from more controlled trials (consistent background network activity, etc.):
+
 | Commands          | Time          | Comment |
 |--------------------------------------------------------------------------:|:---------:| ----------------------------------------------------------------|
 | wget --input-file=wget-list-sysv --continue                               | 1m34.072s | Sequential downloading (at a later time)
