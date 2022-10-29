@@ -54,3 +54,6 @@ clean:
 
 debug: $(BIN)
 	gdb $(BIN)
+
+tar:
+	tar -cf octoget.tar *
