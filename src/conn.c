@@ -98,6 +98,7 @@ void* workerStatViewer(void* ptr)
                     {
                         float percentage = ((float) (statuses[index]->nBytesDownloaded)) / (statuses[index]->nBytesToDownload) * 100;
                         progressBar(percentage, (float) (statuses[index]->nBytesDownloadedPerIter) / STATUS_UPDATE_PERIOD);
+                        statuses[index]->nBytesDownloadedPerIter = 0;
                     }
                 }
             }

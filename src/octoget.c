@@ -94,11 +94,12 @@ int main(int argc, char* argv[])
     {
         queues[index] = (URLQueue*) malloc(sizeof(URLQueue));
         queues[index]->url = argv[URLArgIndices[index]];      // Copying pointer to each url to URLs array.
+        printw("Added to queue: %s\n", queues[index]->url);
         queues[index]->filename = filenameFromURL(queues[index]->url);  // Default name
         queues[index]->nBytesToDownload = getSize(queues[index]->filename, queues[index]->url);                  // Zero this value out. (Will be updated for files that are applicable)
-        printw("Added to queue: %s\n", queues[index]->url);
+        printw("File size fetch for %s: %lu\n", queues[index]->url, queues[index]->nBytesToDownload);
+        refresh();
     }
-    refresh();
 
     // Get file size beforehand for optimization
     
