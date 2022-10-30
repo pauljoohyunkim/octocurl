@@ -6,7 +6,7 @@
 #include <stdint.h>
 
 // Each worker recycles Status assigned.
-typedef struct status
+typedef struct
 {
     size_t nBytesToDownload;
     size_t nBytesDownloaded;
@@ -18,6 +18,8 @@ typedef struct status
 } Status;
 
 
+// Each item in queue has url, filename, nBytesToDownload.
+// Note that nBytesToDownload is used to optimize queue by quicksort.
 typedef struct
 {
     char* url;
