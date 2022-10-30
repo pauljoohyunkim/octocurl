@@ -30,6 +30,7 @@ unsigned int* URLArgIndices;    // Indicies from argv which correspond to URL
 bool qURLArgIndicesAllocated = false;
 int terminalWidth;                 // The columns and rows for ncurses
 
+bool optS = false;              // Whether or not quicksort is to be used or not.
 int main(int argc, char* argv[])
 {
     // Array of indices for URL arguments.
@@ -53,7 +54,7 @@ int main(int argc, char* argv[])
     }
     
     // ARGUMENT PARSING START
-    while((c = getopt(argc, argv, "hc:")) != -1)
+    while((c = getopt(argc, argv, "hc:s")) != -1)
     {
         switch(c)
         {
@@ -76,6 +77,9 @@ int main(int argc, char* argv[])
                     return 1;
                 }
                 break;
+            case 's':
+                optS = true;
+                printw("Quicksort will be used to download larger files first.\n");
         }
     }
 
@@ -105,7 +109,10 @@ int main(int argc, char* argv[])
     
 
     // Quicksort
-    queueQuickSortDescending(queues, 0, numOfURLs - 1);
+    if(optS)
+    {
+        queueQuickSortDescending(queues, 0, numOfURLs - 1);
+    }
 
     //qURLsAllocated = true;
     //URLs = (char**) malloc(numOfURLs * sizeof(char*));  // URLs is now an array to hold urls.
