@@ -2,12 +2,12 @@
 #include "structs.h"
 #include "queue.h"
 
-void queueQuickSort(URLQueue** queues, unsigned int low, unsigned int high)
+void queueQuickSort(URLQueue** queues, int low, int high)
 {
     if(low < high)
     {
         // Pivot
-        unsigned int pi = queueQuickSortPartition(queues, low, high);
+        int pi = queueQuickSortPartition(queues, low, high);
 
         // Left of Pivot
         queueQuickSort(queues, low, pi - 1);
@@ -17,14 +17,14 @@ void queueQuickSort(URLQueue** queues, unsigned int low, unsigned int high)
 
 }
 
-unsigned int queueQuickSortPartition(URLQueue** queues, unsigned int low, unsigned int high)
+int queueQuickSortPartition(URLQueue** queues, int low, int high)
 {
     // Rightmost element as pivot
-    unsigned int pivot = queues[high]->nBytesToDownload;
+    int pivot = queues[high]->nBytesToDownload;
 
-    unsigned int i = low - 1;
+    int i = low - 1;
 
-    for(unsigned int j = low; j < high; j++)
+    for(int j = low; j < high; j++)
     {
         if(queues[j]->nBytesToDownload <= pivot)
         {

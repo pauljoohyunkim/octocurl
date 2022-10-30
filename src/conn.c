@@ -47,7 +47,8 @@ void* queueWorker(void* ptr)
         pthread_mutex_unlock(&queueLock);
         //statusPtr->url = URLs[currentWorkerQueue];
         statusPtr->url = queues[currentWorkerQueue]->url;
-        statusPtr->filename = filenameFromURL(statusPtr->url);
+        statusPtr->filename = queues[currentWorkerQueue]->filename;
+        statusPtr->nBytesToDownload = queues[currentWorkerQueue]->nBytesToDownload;
         statusPtr->nBytesDownloadedPerIter = 0;
         printw("Downloading %s as %s\n", statusPtr->url, statusPtr->filename);
         curlDownload(statusPtr->url, statusPtr->filename, statusPtr);
@@ -150,7 +151,7 @@ void progressBar(float percentage, float speed)
 
 int curlDownload(char* url, char* filename, Status* statusPtr)
 {
-    curl_off_t length;      // Size of the file that will be downloaded.
+    //curl_off_t length;      // Size of the file that will be downloaded.
     CURLcode curlcode;      // Curl return value
 
     // curl handler initialization
@@ -164,19 +165,20 @@ int curlDownload(char* url, char* filename, Status* statusPtr)
 
     // curl handler option
     curl_easy_setopt(curl, CURLOPT_URL, url);
-    curl_easy_setopt(curl, CURLOPT_NOBODY, 1);  // Only get information, not the data.
+    //curl_easy_setopt(curl, CURLOPT_NOBODY, 1);  // Only get information, not the data.
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, statusPtr);
 
     // Get length
-    curlcode = curl_easy_perform(curl);
-    if(curlcode != CURLE_OK)
-    {
-        fprintf(stderr, "Could not get file size for %s from %s.", filename, url);
-    }
-    curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, &length);
+    //curlcode = curl_easy_perform(curl);
+    //if(curlcode != CURLE_OK)
+    //{
+    //    fprintf(stderr, "Could not get file size for %s from %s.", filename, url);
+    //}
+    //curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, &length);
 
     // Initializing status
-    statusPtr->nBytesToDownload = length;
+    //length = statusPtr->nBytesToDownload;
+    //statusPtr->nBytesToDownload = length;
     statusPtr->nBytesDownloaded = 0;
     statusPtr->fp = fopen(filename, "wb");
     if(statusPtr->fp == NULL)
@@ -188,7 +190,7 @@ int curlDownload(char* url, char* filename, Status* statusPtr)
 
     // Start downloading file
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, getData);
-    curl_easy_setopt(curl, CURLOPT_NOBODY, 0);
+    //curl_easy_setopt(curl, CURLOPT_NOBODY, 0);
     curlcode = curl_easy_perform(curl);
 
     if(curlcode != CURLE_OK)
@@ -217,6 +219,41 @@ size_t getData(char* buffer, size_t itemsize, size_t nitems, void* ptr)
     
     //printf("%s",buffer);
     return bytes;
+}
+
+// Prefetches the file size
+curl_off_t getSize(char* filename, char* url)
+{
+    curl_off_t length;
+    CURLcode curlcode;      // Curl return value
+
+    // curl handler initialization
+    CURL* curl = curl_easy_init();
+    if(!curl)
+    {
+        fprintf(stderr, "CURL initialization failed\n");
+        return 0;
+    }
+
+
+    // curl handler option
+    curl_easy_setopt(curl, CURLOPT_URL, url);
+    curl_easy_setopt(curl, CURLOPT_NOBODY, 1);  // Only get information, not the data.
+    //curl_easy_setopt(curl, CURLOPT_WRITEDATA, statusPtr);
+
+    // Get length
+    curlcode = curl_easy_perform(curl);
+    if(curlcode != CURLE_OK)
+    {
+        fprintf(stderr, "Could not get file size for %s from %s.", filename, url);
+        return 0;
+    }
+    curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, &length);
+
+    curl_easy_cleanup(curl);
+
+    return length;
+    
 }
 
 // Getting filename from URL

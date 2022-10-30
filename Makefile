@@ -47,7 +47,7 @@ $(TESTDIR)/structtest: $(TESTDIR)/structtest.c $(SRCDIR)/queue.c
 	$(CC) $(CFLAGS) $(TESTDIR)/structtest.c $(SRCDIR)/queue.c -o $@
 
 clean:
-	$(RM) -r $(BINDIR)/* $(OBJDIR)/* $(TEST)/*.o $(TESTBIN) ./*.zip ./*.tar
+	$(RM) -r $(BINDIR)/* $(OBJDIR)/* $(TEST)/*.o $(TESTBIN) ./*.zip ./*.tar ./*.com
 
 debug: $(BIN)
 	gdb $(BIN)

@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include "structs.h"
 
-void queueQuickSort(URLQueue** queues, unsigned int low, unsigned int high);
-unsigned int queueQuickSortPartition(URLQueue** queues, unsigned int low, unsigned int high);
+void queueQuickSort(URLQueue** queues, int low, int high);
+int queueQuickSortPartition(URLQueue** queues, int low, int high);
 void queueQuickSortSwap(URLQueue** a, URLQueue** b);
 #endif

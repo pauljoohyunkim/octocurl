@@ -10,6 +10,7 @@
 
 #include "octoget.h"
 #include "conn.h"
+#include "queue.h"
 #include "structs.h"
 
 unsigned int concurrentDownloadNum = DEFAULT_CONCURRENT_DOWNLOAD;
@@ -93,10 +94,17 @@ int main(int argc, char* argv[])
     {
         queues[index] = (URLQueue*) malloc(sizeof(URLQueue));
         queues[index]->url = argv[URLArgIndices[index]];      // Copying pointer to each url to URLs array.
-        queues[index]->nBytesToDownload = 0;                  // Zero this value out. (Will be updated for files that are applicable)
+        queues[index]->filename = filenameFromURL(queues[index]->url);  // Default name
+        queues[index]->nBytesToDownload = getSize(queues[index]->filename, queues[index]->url);                  // Zero this value out. (Will be updated for files that are applicable)
         printw("Added to queue: %s\n", queues[index]->url);
     }
     refresh();
+
+    // Get file size beforehand for optimization
+    
+
+    // Quicksort
+    queueQuickSort(queues, 0, numOfURLs - 1);
 
     //qURLsAllocated = true;
     //URLs = (char**) malloc(numOfURLs * sizeof(char*));  // URLs is now an array to hold urls.
