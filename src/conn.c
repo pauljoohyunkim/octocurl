@@ -92,7 +92,7 @@ void* workerStatViewer(void* ptr)
                     if(statuses[index]->nBytesToDownload)
                     {
                         float percentage = ((float) (statuses[index]->nBytesDownloaded)) / (statuses[index]->nBytesToDownload) * 100;
-                        progressBar(percentage, (float) (statuses[index]->nBytesDownloadedPerIter));
+                        progressBar(percentage, (float) (statuses[index]->nBytesDownloadedPerIter) / STATUS_UPDATE_PERIOD);
                     }
                 }
             }
@@ -125,7 +125,23 @@ void progressBar(float percentage, float speed)
     {
         printw(" ");
     }
-    printw("]\t [%.2f%%]\t[%f bytes/s]\n", percentage, speed);
+    printw("]\t [%.2f%%]\t", percentage);
+    if(speed / 1000 < 1)
+    {
+        printw("%.2f B/s\n", speed);
+    }
+    else if(speed / 1000000 < 1)
+    {
+        printw("%.2f kB/s\n", speed / 1000);
+    }
+    else if(speed / 1000000000 < 1)
+    {
+        printw("%.2f mB/s\n", speed / 1000000);
+    }
+    else
+    {
+        printw("%.2f gB/s\n", speed / 1000000000);
+    }
 }
 
 int curlDownload(char* url, char* filename, Status* statusPtr)

@@ -41,7 +41,7 @@ test5: $(BIN)
 	$(BIN) -c 5 http://212.183.159.230/5MB.zip http://212.183.159.230/10MB.zip http://212.183.159.230/20MB.zip http://212.183.159.230/50MB.zip
 	
 testclean:
-	$(RM) *.zip
+	$(RM) *.zip*
 
 $(TESTBIN): $(TESTDIR)/conntest.o $(OBJDIR)/conn.o
 	$(CC) $(CFLAGS) $^ -o $@ -lcurl
