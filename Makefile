@@ -5,9 +5,9 @@ SRCDIR=src
 OBJDIR=obj
 BINDIR=bin
 TESTDIR=test
-OBJS = $(OBJDIR)/octoget.o $(OBJDIR)/conn.o
+OBJS = $(OBJDIR)/octoget.o $(OBJDIR)/conn.o $(OBJDIR)/queue.o
 BIN = $(BINDIR)/octoget
-TESTBIN = $(TEST)/conntest
+TESTBIN = $(TESTDIR)/structtest
 
 all: $(BIN)
 
@@ -43,11 +43,8 @@ test5: $(BIN)
 testclean:
 	$(RM) *.zip*
 
-$(TESTBIN): $(TESTDIR)/conntest.o $(OBJDIR)/conn.o
-	$(CC) $(CFLAGS) $^ -o $@ -lcurl
-
-$(TESTDIR)/conntest.o: $(TESTDIR)/conntest.c
-	$(CC) $(CFLAGS) -c $< -o $@
+$(TESTDIR)/structtest: $(TESTDIR)/structtest.c $(SRCDIR)/queue.c
+	$(CC) $(CFLAGS) $(TESTDIR)/structtest.c $(SRCDIR)/queue.c -o $@
 
 clean:
 	$(RM) -r $(BINDIR)/* $(OBJDIR)/* $(TEST)/*.o $(TESTBIN) ./*.zip ./*.tar

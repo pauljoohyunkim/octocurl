@@ -1,17 +1,7 @@
 #ifndef CONN_H
 #define CONN_H
 
-// Each worker recycles Status assigned.
-typedef struct status
-{
-    size_t nBytesToDownload;
-    size_t nBytesDownloaded;
-    size_t nBytesDownloadedPerIter;
-    char* url;
-    char* filename;
-    bool qWorkerActive;
-    FILE* fp;
-} Status;
+#include "structs.h"
 
 void* queueWorker(void* ptr);
 void* workerStatViewer(void* ptr);

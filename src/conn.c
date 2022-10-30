@@ -8,6 +8,7 @@
 #include <ncurses.h>
 
 #include "conn.h"
+#include "structs.h"
 #include "octoget.h"
 
 extern unsigned int concurrentDownloadNum;

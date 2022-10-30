@@ -10,6 +10,7 @@
 
 #include "octoget.h"
 #include "conn.h"
+#include "structs.h"
 
 unsigned int concurrentDownloadNum = DEFAULT_CONCURRENT_DOWNLOAD;
 unsigned int numOfURLs = 0;
