@@ -25,7 +25,6 @@ void* queueWorker(void* ptr)
 {
     Status* statusPtr = (Status*) ptr;
     unsigned int currentWorkerQueue;
-    //printf("Hello World! %u %u\n", statusPtr->nBytesToDownload, statusPtr->nBytesDownloaded);
 
     // Flag worker as active
     statusPtr->qWorkerActive = true;
@@ -45,6 +44,7 @@ void* queueWorker(void* ptr)
         pthread_mutex_unlock(&queueLock);
         statusPtr->url = URLs[currentWorkerQueue];
         statusPtr->filename = filenameFromURL(statusPtr->url);
+        statusPtr->nBytesDownloadedPerIter = 0;
         printw("Downloading %s as %s\n", statusPtr->url, statusPtr->filename);
         curlDownload(URLs[currentWorkerQueue], filenameFromURL(URLs[currentWorkerQueue]), statusPtr);
     }
@@ -61,7 +61,7 @@ void* workerStatViewer(void* ptr)
 {
     // Checking if all workers are inactive.
     bool areAllWorkersInactive = false;
-    while(1)
+    while(STATUS_UPDATE_PERIOD)
     {
         sleep(1);
         clear();            // clear ncurses screen
@@ -82,7 +82,6 @@ void* workerStatViewer(void* ptr)
         if(areAllWorkersInactive == false)
         {
             // Display progress.
-            //printf("\r");
             for(int index = 0; index < concurrentDownloadNum; index++)
             {
                 // Only show active workers
@@ -93,7 +92,7 @@ void* workerStatViewer(void* ptr)
                     if(statuses[index]->nBytesToDownload)
                     {
                         float percentage = ((float) (statuses[index]->nBytesDownloaded)) / (statuses[index]->nBytesToDownload) * 100;
-                        progressBar(percentage);
+                        progressBar(percentage, (float) (statuses[index]->nBytesDownloadedPerIter));
                     }
                 }
             }
@@ -113,7 +112,7 @@ void* workerStatViewer(void* ptr)
 }
 
 // Prints a terminal progress bar
-void progressBar(float percentage)
+void progressBar(float percentage, float speed)
 {
     int progressBarLength = (int) floor(terminalWidth * 0.6);
     int numOfStars = (int) floor(percentage * progressBarLength / 100);
@@ -126,7 +125,7 @@ void progressBar(float percentage)
     {
         printw(" ");
     }
-    printw("]\t [%.2f%%]\n", percentage);
+    printw("]\t [%.2f%%]\t[%f bytes/s]\n", percentage, speed);
 }
 
 int curlDownload(char* url, char* filename, Status* statusPtr)
@@ -193,6 +192,7 @@ size_t getData(char* buffer, size_t itemsize, size_t nitems, void* ptr)
     size_t bytes = itemsize * nitems;
     Status* statusPtr = (Status*) ptr;
     statusPtr->nBytesDownloaded += bytes;
+    statusPtr->nBytesDownloadedPerIter += bytes;
     fwrite(buffer, itemsize, nitems, statusPtr->fp);
     
     //printf("%s",buffer);

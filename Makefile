@@ -50,7 +50,7 @@ $(TESTDIR)/conntest.o: $(TESTDIR)/conntest.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	$(RM) -r $(BINDIR)/* $(OBJDIR)/* $(TEST)/*.o $(TESTBIN) ./*.zip
+	$(RM) -r $(BINDIR)/* $(OBJDIR)/* $(TEST)/*.o $(TESTBIN) ./*.zip ./*.tar
 
 debug: $(BIN)
 	gdb $(BIN)
