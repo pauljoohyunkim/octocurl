@@ -2,6 +2,21 @@
 #include "structs.h"
 #include "queue.h"
 
+void queueQuickSortDescending(URLQueue** queues, int low, int high)
+{
+   int i = low;
+   int j = high;
+
+   queueQuickSort(queues, i, j);
+
+   while(i < j)
+   {
+        queueQuickSortSwap(&queues[i], &queues[j]);
+        i++;
+        j--;
+   }
+}
+
 void queueQuickSort(URLQueue** queues, int low, int high)
 {
     if(low < high)

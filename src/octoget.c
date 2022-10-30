@@ -104,7 +104,7 @@ int main(int argc, char* argv[])
     
 
     // Quicksort
-    queueQuickSort(queues, 0, numOfURLs - 1);
+    queueQuickSortDescending(queues, 0, numOfURLs - 1);
 
     //qURLsAllocated = true;
     //URLs = (char**) malloc(numOfURLs * sizeof(char*));  // URLs is now an array to hold urls.

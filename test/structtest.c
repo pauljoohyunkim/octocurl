@@ -16,7 +16,7 @@ int main()
     queues[3]->nBytesToDownload = 5;
     queues[4]->nBytesToDownload = 2;
 
-    queueQuickSort(queues, 0, 4);
+    queueQuickSortDescending(queues, 0, 4);
 
 
     free(queues);
