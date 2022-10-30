@@ -8,10 +8,12 @@
 #include <ncurses.h>
 
 #include "conn.h"
+#include "octoget.h"
 
 extern unsigned int concurrentDownloadNum;
-extern int numOfURLs;
-extern char** URLs;
+extern unsigned int numOfURLs;
+//extern char** URLs;
+extern URLQueue** queues;
 
 extern Status** statuses;
 
@@ -42,11 +44,12 @@ void* queueWorker(void* ptr)
             queueNum++;
         }
         pthread_mutex_unlock(&queueLock);
-        statusPtr->url = URLs[currentWorkerQueue];
+        //statusPtr->url = URLs[currentWorkerQueue];
+        statusPtr->url = queues[currentWorkerQueue]->url;
         statusPtr->filename = filenameFromURL(statusPtr->url);
         statusPtr->nBytesDownloadedPerIter = 0;
         printw("Downloading %s as %s\n", statusPtr->url, statusPtr->filename);
-        curlDownload(URLs[currentWorkerQueue], filenameFromURL(URLs[currentWorkerQueue]), statusPtr);
+        curlDownload(statusPtr->url, statusPtr->filename, statusPtr);
     }
 
     // Flag worker as inactive

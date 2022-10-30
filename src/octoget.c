@@ -14,8 +14,10 @@
 unsigned int concurrentDownloadNum = DEFAULT_CONCURRENT_DOWNLOAD;
 unsigned int numOfURLs = 0;
 unsigned int queueNum = 0;
-char** URLs;                    // Array of URLs
-bool qURLsAllocated = false;    // Whether or not the URL array is allocated or not.
+URLQueue** queues;              // This replaced the array of URLs used before.
+bool qQueuesAllocated = false;
+//char** URLs;                    // Array of URLs
+//bool qURLsAllocated = false;    // Whether or not the URL array is allocated or not.
 pthread_t* threadPtr;           // Array of Threads
 bool qThreadAllocated = false;  // Whether or not the threadPtr is allocated or not.
 Status** statuses;              // Array of Status struct pointers for each worker.
@@ -82,16 +84,27 @@ int main(int argc, char* argv[])
         URLArgIndices[numOfURLs] = optind;
         numOfURLs++;
     }
-    //optind = 1;         // Reset optind to iterate through the extra arguments again.
-    qURLsAllocated = true;
-    URLs = (char**) malloc(numOfURLs * sizeof(char*));  // URLs is now an array to hold urls.
-    //unsigned int URLIndex = 0;
+
+    // Queue of URLs
+    qQueuesAllocated = true;
+    queues = (URLQueue**) malloc(numOfURLs * sizeof(URLQueue*));
     for(int index = 0; index < numOfURLs; index++)
     {
-        URLs[index] = argv[URLArgIndices[index]];      // Copying pointer to each url to URLs array.
-        printw("Added to queue: %s\n", URLs[index]);
+        queues[index] = (URLQueue*) malloc(sizeof(URLQueue));
+        queues[index]->url = argv[URLArgIndices[index]];      // Copying pointer to each url to URLs array.
+        queues[index]->nBytesToDownload = 0;                  // Zero this value out. (Will be updated for files that are applicable)
+        printw("Added to queue: %s\n", queues[index]->url);
     }
     refresh();
+
+    //qURLsAllocated = true;
+    //URLs = (char**) malloc(numOfURLs * sizeof(char*));  // URLs is now an array to hold urls.
+    //for(int index = 0; index < numOfURLs; index++)
+    //{
+    //    URLs[index] = argv[URLArgIndices[index]];      // Copying pointer to each url to URLs array.
+    //    printw("Added to queue: %s\n", URLs[index]);
+    //}
+    //refresh();
     // ARGUMENT PARSING END
 
     // Status Struct Memory Allocation for each worker
@@ -130,7 +143,13 @@ int main(int argc, char* argv[])
 
 
     // Garbage Collection
-    free(URLs);
+    //free(URLs);
+
+    for(int index = 0; index < numOfURLs; index++)
+    {
+        free(queues[index]);
+    }
+    free(queues);
     for(unsigned int index = 0; index < concurrentDownloadNum; index++)
     {
         free(statuses[index]);
@@ -159,10 +178,18 @@ void handler(int num)
             {
                 free(URLArgIndices);
             }
-            if(qURLsAllocated == true)
+            if(qQueuesAllocated == true)
             {
-                free(URLs);
+                for(int index = 0; index < numOfURLs; index++)
+                {
+                    free(queues[index]);
+                }
+                free(queues);
             }
+//            if(qURLsAllocated == true)
+//            {
+//                free(URLs);
+//            }
             if(qStatusAllocated == true)
             {
                 for(unsigned int index = 0; index < concurrentDownloadNum; index++)
