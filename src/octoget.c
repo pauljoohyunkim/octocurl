@@ -29,9 +29,10 @@ pthread_mutex_t queueLock = PTHREAD_MUTEX_INITIALIZER;      // Mutex Lock for Wo
 unsigned int* URLArgIndices;    // Indicies from argv which correspond to URL
 bool qURLArgIndicesAllocated = false;
 int terminalWidth;                 // The columns and rows for ncurses
+int y, x;                           // ncurses location
 
 bool optS = false;              // Whether or not quicksort is to be used or not.
-bool optP = false;              // Whether or not to prefetch file size. (false for prefetching, true for not prefetching)
+bool optP = false;              // Whether or not to prefetch file size.
 int main(int argc, char* argv[])
 {
     // Array of indices for URL arguments.
@@ -84,7 +85,7 @@ int main(int argc, char* argv[])
                 break;
             case 'p':
                 optP = true;
-                printw("File size prefetch disabled\n");
+                printw("File size prefetch enabled.\n");
                 break;
         }
     }
@@ -106,9 +107,14 @@ int main(int argc, char* argv[])
         queues[index]->url = argv[URLArgIndices[index]];      // Copying pointer to each url to URLs array.
         printw("Added to queue: %s\n", queues[index]->url);
         queues[index]->filename = filenameFromURL(queues[index]->url);  // Default name
-        if(optS || !optP)
+        if(optS || optP)
         {
             queues[index]->nBytesToDownload = getSize(queues[index]->filename, queues[index]->url);                  // Prefetch file size.
+            getyx(stdscr, y, x);
+            if(y >= getmaxy(stdscr) - 2)
+            {
+                clear();
+            }
             printw("File size fetch for %s: %lu\n", queues[index]->url, queues[index]->nBytesToDownload);
         }
         else
