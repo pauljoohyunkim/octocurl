@@ -152,7 +152,7 @@ void progressBar(float percentage, float speed)
 
 int curlDownload(char* url, char* filename, Status* statusPtr)
 {
-    //curl_off_t length;      // Size of the file that will be downloaded.
+    curl_off_t length;      // Size of the file that will be downloaded.
     CURLcode curlcode;      // Curl return value
 
     // curl handler initialization
@@ -166,20 +166,26 @@ int curlDownload(char* url, char* filename, Status* statusPtr)
 
     // curl handler option
     curl_easy_setopt(curl, CURLOPT_URL, url);
-    //curl_easy_setopt(curl, CURLOPT_NOBODY, 1);  // Only get information, not the data.
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, statusPtr);
 
-    // Get length
-    //curlcode = curl_easy_perform(curl);
-    //if(curlcode != CURLE_OK)
-    //{
-    //    fprintf(stderr, "Could not get file size for %s from %s.", filename, url);
-    //}
-    //curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, &length);
+    // Get length if it is not fetched.
+    if(statusPtr->nBytesToDownload == 0)
+    {
+        curl_easy_setopt(curl, CURLOPT_NOBODY, 1);  // Only get information, not the data.
+        curlcode = curl_easy_perform(curl);
+        if(curlcode != CURLE_OK)
+        {
+            fprintf(stderr, "Could not get file size for %s from %s.", filename, url);
+            length = 0;
+        }
+        else
+        {
+            curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, &length);
+            statusPtr->nBytesToDownload = length;
+        }
+    }
 
     // Initializing status
-    //length = statusPtr->nBytesToDownload;
-    //statusPtr->nBytesToDownload = length;
     statusPtr->nBytesDownloaded = 0;
     statusPtr->fp = fopen(filename, "wb");
     if(statusPtr->fp == NULL)
@@ -191,7 +197,7 @@ int curlDownload(char* url, char* filename, Status* statusPtr)
 
     // Start downloading file
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, getData);
-    //curl_easy_setopt(curl, CURLOPT_NOBODY, 0);
+    curl_easy_setopt(curl, CURLOPT_NOBODY, 0);
     curlcode = curl_easy_perform(curl);
 
     if(curlcode != CURLE_OK)

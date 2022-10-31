@@ -31,6 +31,7 @@ bool qURLArgIndicesAllocated = false;
 int terminalWidth;                 // The columns and rows for ncurses
 
 bool optS = false;              // Whether or not quicksort is to be used or not.
+bool optP = false;              // Whether or not to prefetch file size. (false for prefetching, true for not prefetching)
 int main(int argc, char* argv[])
 {
     // Array of indices for URL arguments.
@@ -54,7 +55,7 @@ int main(int argc, char* argv[])
     }
     
     // ARGUMENT PARSING START
-    while((c = getopt(argc, argv, "hc:s")) != -1)
+    while((c = getopt(argc, argv, "hc:sp")) != -1)
     {
         switch(c)
         {
@@ -80,6 +81,11 @@ int main(int argc, char* argv[])
             case 's':
                 optS = true;
                 printw("Quicksort will be used to download larger files first.\n");
+                break;
+            case 'p':
+                optP = true;
+                printw("File size prefetch disabled\n");
+                break;
         }
     }
 
@@ -100,28 +106,23 @@ int main(int argc, char* argv[])
         queues[index]->url = argv[URLArgIndices[index]];      // Copying pointer to each url to URLs array.
         printw("Added to queue: %s\n", queues[index]->url);
         queues[index]->filename = filenameFromURL(queues[index]->url);  // Default name
-        queues[index]->nBytesToDownload = getSize(queues[index]->filename, queues[index]->url);                  // Zero this value out. (Will be updated for files that are applicable)
-        printw("File size fetch for %s: %lu\n", queues[index]->url, queues[index]->nBytesToDownload);
+        if(optS || !optP)
+        {
+            queues[index]->nBytesToDownload = getSize(queues[index]->filename, queues[index]->url);                  // Prefetch file size.
+            printw("File size fetch for %s: %lu\n", queues[index]->url, queues[index]->nBytesToDownload);
+        }
+        else
+        {
+            queues[index]->nBytesToDownload = 0;
+        }
         refresh();
     }
-
-    // Get file size beforehand for optimization
-    
 
     // Quicksort
     if(optS)
     {
         queueQuickSortDescending(queues, 0, numOfURLs - 1);
     }
-
-    //qURLsAllocated = true;
-    //URLs = (char**) malloc(numOfURLs * sizeof(char*));  // URLs is now an array to hold urls.
-    //for(int index = 0; index < numOfURLs; index++)
-    //{
-    //    URLs[index] = argv[URLArgIndices[index]];      // Copying pointer to each url to URLs array.
-    //    printw("Added to queue: %s\n", URLs[index]);
-    //}
-    //refresh();
     // ARGUMENT PARSING END
 
     // Status Struct Memory Allocation for each worker
@@ -203,10 +204,6 @@ void handler(int num)
                 }
                 free(queues);
             }
-//            if(qURLsAllocated == true)
-//            {
-//                free(URLs);
-//            }
             if(qStatusAllocated == true)
             {
                 for(unsigned int index = 0; index < concurrentDownloadNum; index++)
@@ -230,6 +227,8 @@ void showHelp()
     printf("Usage: octoget [options] url1 [url2] [url...]\n"
            "\n"
            "-c x\tSpecify the number of concurrent downloads (Default: 4)\n"
+           "-s\tPrefetch the file sizes and sort to download larger files first.\n"
+           "-p\tDo not prefetch the file size. (Fetching size when the file is on queue. (Ignored when -s is used)\n"
           );
     endwin();
     exit(1);
