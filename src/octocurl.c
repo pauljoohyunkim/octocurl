@@ -230,12 +230,12 @@ void handler(int num)
 
 void showHelp()
 {
+    endwin();
     printf("Usage: octocurl [options] url1 [url2] [url...]\n"
            "\n"
            "-c x\tSpecify the number of concurrent downloads (Default: 4)\n"
            "-s\tPrefetch the file sizes and sort to download larger files first.\n"
            "-p\tDo not prefetch the file size. (Fetching size when the file is on queue. (Ignored when -s is used)\n"
           );
-    endwin();
     exit(1);
 }

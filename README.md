@@ -5,8 +5,10 @@ If you have sufficient bandwidth, you can download multiple files, each with ind
 
 ## How to use
 > Usage: octocurl [options] url1 [url2] [url...]
->
-> -c x    Specify the number of concurrent downloads (Default: 4)
+> 
+> -c x	Specify the number of concurrent downloads (Default: 4)
+> -s	Prefetch the file sizes and sort to download larger files first.
+> -p	Do not prefetch the file size. (Fetching size when the file is on queue. (Ignored when -s is used)
 
 ## Build
 ### Prerequisite
@@ -49,8 +51,8 @@ Note that this sort of performance gain is due to using this program in a high b
 Here are results from more controlled trials (consistent background network activity, etc.):
 
 | Commands          | Time          | Comment |
-|--------------------------------------------------------------------------:|:---------:| ----------------------------------------------------------------|
-| wget --input-file=wget-list-sysv --continue                               | 1m34.072s | Sequential downloading (at a later time)
+|---------------------------------------------------------------------------:|:---------:| ----------------------------------------------------------------|
+| wget --input-file=wget-list-sysv --continue                                | 1m34.072s | Sequential downloading (at a later time)
 | bin/octocurl $(cat wget-list-sysv)                                         | 0m29.048s | octocurl with 4 workers
 | bin/octocurl -c 25 $(cat wget-list-sysv)                                   | 0m20.049s | octocurl with 25 workers
 | bin/octocurl -c 86 \$(cat wget-list-sysv)                                  | 0m19.070s | octocurl with worker for each file (Note that, above certain number of workers, there isn't much speedup; rather you might even experience some performance drops.)
