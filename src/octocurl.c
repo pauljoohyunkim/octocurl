@@ -8,7 +8,7 @@
 #include <curl/curl.h>
 #include <ncurses.h>
 
-#include "octoget.h"
+#include "octocurl.h"
 #include "conn.h"
 #include "queue.h"
 #include "structs.h"
@@ -230,7 +230,7 @@ void handler(int num)
 
 void showHelp()
 {
-    printf("Usage: octoget [options] url1 [url2] [url...]\n"
+    printf("Usage: octocurl [options] url1 [url2] [url...]\n"
            "\n"
            "-c x\tSpecify the number of concurrent downloads (Default: 4)\n"
            "-s\tPrefetch the file sizes and sort to download larger files first.\n"

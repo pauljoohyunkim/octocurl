@@ -9,7 +9,7 @@
 
 #include "conn.h"
 #include "structs.h"
-#include "octoget.h"
+#include "octocurl.h"
 
 extern unsigned int concurrentDownloadNum;
 extern unsigned int numOfURLs;

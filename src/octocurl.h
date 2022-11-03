@@ -1,5 +1,5 @@
-#ifndef OCTOGET_H
-#define OCTOGET_H
+#ifndef OCTOCURL_H
+#define OCTOCURL_H
 
 #define DEFAULT_CONCURRENT_DOWNLOAD 4
 #define MIN_CONCURRENT_DOWNLOAD     1

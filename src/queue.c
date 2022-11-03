@@ -1,4 +1,4 @@
-#include "octoget.h"
+#include "octocurl.h"
 #include "structs.h"
 #include "queue.h"
 

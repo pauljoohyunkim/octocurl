@@ -1,10 +1,10 @@
-# Octoget
+# Octocurl
 
-Octoget is a wrapper around CURL for bulk downloads. (I know, it is a bit misleading, but I didn't think about the name as hard as much as I spent time coding this up.)
+Octocurl (formally, octoget) is a wrapper around CURL for bulk downloads.
 If you have sufficient bandwidth, you can download multiple files, each with individual worker.
 
 ## How to use
-> Usage: octoget [options] url1 [url2] [url...]
+> Usage: octocurl [options] url1 [url2] [url...]
 >
 > -c x    Specify the number of concurrent downloads (Default: 4)
 
@@ -18,12 +18,12 @@ Currently, installation is not automatic.
 Compiling for development can be done by issuing
 > make 
 
-This creates the binary at bin/octoget.
+This creates the binary at bin/octocurl.
 
 Compiling for standard use can be done by issuing
 > make release
 
-This also creates the binary at bin/octoget.
+This also creates the binary at bin/octocurl.
 
 ## Testing
 > \# You can test if it works by:
@@ -39,8 +39,8 @@ Downloading Linux from Scratch Packages (v11.2) as mentioned in https://linuxfro
 
 It took 1 minute and 42.4695 seconds for all the packages to download.
 
-On the other hand, using octoget with the following command:
-> bin/octoget $(cat wget-list-sysv)
+On the other hand, using octocurl with the following command:
+> bin/octocurl $(cat wget-list-sysv)
 
 it took 29.0505 seconds. (gcc was the bottleneck here, so apart from gcc, everything downloaded quickly. Setting worker number to 25, it only took 22.076 seconds.)
 
@@ -51,6 +51,6 @@ Here are results from more controlled trials (consistent background network acti
 | Commands          | Time          | Comment |
 |--------------------------------------------------------------------------:|:---------:| ----------------------------------------------------------------|
 | wget --input-file=wget-list-sysv --continue                               | 1m34.072s | Sequential downloading (at a later time)
-| bin/octoget $(cat wget-list-sysv)                                         | 0m29.048s | octoget with 4 workers
-| bin/octoget -c 25 $(cat wget-list-sysv)                                   | 0m20.049s | octoget with 25 workers
-| bin/octoget -c 86 \$(cat wget-list-sysv)                                  | 0m19.070s | octoget with worker for each file (Note that, above certain number of workers, there isn't much speedup; rather you might even experience some performance drops.)
+| bin/octocurl $(cat wget-list-sysv)                                         | 0m29.048s | octocurl with 4 workers
+| bin/octocurl -c 25 $(cat wget-list-sysv)                                   | 0m20.049s | octocurl with 25 workers
+| bin/octocurl -c 86 \$(cat wget-list-sysv)                                  | 0m19.070s | octocurl with worker for each file (Note that, above certain number of workers, there isn't much speedup; rather you might even experience some performance drops.)

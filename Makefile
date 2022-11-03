@@ -5,8 +5,8 @@ SRCDIR=src
 OBJDIR=obj
 BINDIR=bin
 TESTDIR=test
-OBJS = $(OBJDIR)/octoget.o $(OBJDIR)/conn.o $(OBJDIR)/queue.o
-BIN = $(BINDIR)/octoget
+OBJS = $(OBJDIR)/octocurl.o $(OBJDIR)/conn.o $(OBJDIR)/queue.o
+BIN = $(BINDIR)/octocurl
 TESTBIN = $(TESTDIR)/structtest
 
 all: $(BIN)
@@ -53,4 +53,4 @@ debug: $(BIN)
 	gdb $(BIN)
 
 tar:
-	tar -cf octoget.tar *
+	tar -cf octocurl.tar *
