@@ -5,9 +5,12 @@ If you have sufficient bandwidth, you can download multiple files, each with ind
 
 ## How to use
 > Usage: octocurl [options] url1 [url2] [url...]
+>
 > 
 > -c x	Specify the number of concurrent downloads (Default: 4)
+>
 > -s	Prefetch the file sizes and sort to download larger files first.
+>
 > -p	Do not prefetch the file size. (Fetching size when the file is on queue. (Ignored when -s is used)
 
 ## Build
