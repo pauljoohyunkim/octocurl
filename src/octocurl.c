@@ -12,6 +12,7 @@
 #include "conn.h"
 #include "queue.h"
 #include "structs.h"
+#include "filestring.h"
 
 unsigned int concurrentDownloadNum = DEFAULT_CONCURRENT_DOWNLOAD;
 unsigned int numOfURLs = 0;

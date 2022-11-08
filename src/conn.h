@@ -9,7 +9,6 @@ void progressBar(float percentage, float speed);
 int curlDownload(char* url, char* filename, Status* ptr);
 size_t getData(char* buffer, size_t itemsize, size_t nitems, void* statusPtr);
 curl_off_t getSize(char* filename, char* url);
-char* filenameFromURL(char* URLString);
 
 // curlDownload return codes
 #define CURLDOWN_GOOD 0
