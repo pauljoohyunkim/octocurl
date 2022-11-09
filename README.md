@@ -7,18 +7,30 @@ If you have sufficient bandwidth, you can download multiple files, each with ind
 > Usage: octocurl [options] url1 [url2] [url...]
 > 
 > -c x			        Specify the number of concurrent downloads (Default: 4)
+>
 > -s			        Prefetch the file sizes and sort to download larger files first.
+>
 > -p			        Do not prefetch the file size. (Fetching size when the file is on queue. (Ignored when -s is used))
+>
 > -r <regex>		    Regular expression of each url. (This option requires -o option.)
+>
 > -o <filename form>	Form of the output file name. (Use * for placeholder for the regex match)
+>
 > 
 > Examples:
+>
 > octocurl http://example.com						                    Downloads the webpage and saves it as 'example.com'
+>
 > octocurl -c 3 http://example.com/{1,2,3,4}.ts				            Downloads 1.ts, 2.ts, 3.ts, 4.ts with three workers.
+>
 > octocurl -s http://example.com/{1,2,3,4}.ts				            Prefetches the file size before downloading the contents and sorts
+>
 > 									                                    them (descending). This might be useful for downloading many files
+>
 > 									                                    of potentially highly varying file sizes.
+>
 > octocurl -p http://example.com/{1,2,3,4}.ts				            Fetches the file size when it is on queue.
+>
 > octocurl -r '[0-9].ts' -o './*' http://vid.com/{1,2}.ts-foo-bar		Uses regex to save the files as 1.ts, 2.ts
 
 ## Build
