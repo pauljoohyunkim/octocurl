@@ -24,6 +24,7 @@ typedef struct
 {
     char* url;
     char* filename;
+    long filenameLen;
     size_t nBytesToDownload;
 } URLQueue;
 

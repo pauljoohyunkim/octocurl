@@ -1,9 +1,10 @@
 #ifndef FILESTRING_H
 #define FILESTRING_H
 
-
-#include <string.h>
+#define PLACEHOLDER_CHAR '*'
 
 char* filenameFromURL(char* URLString);
+int countChar(char c, char* string);
+char* regexToFilename(char* URLString);
 
 #endif
