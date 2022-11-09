@@ -24,9 +24,7 @@ If you have sufficient bandwidth, you can download multiple files, each with ind
 > octocurl -c 3 http://example.com/{1,2,3,4}.ts				            Downloads 1.ts, 2.ts, 3.ts, 4.ts with three workers.
 >
 > octocurl -s http://example.com/{1,2,3,4}.ts				            Prefetches the file size before downloading the contents and sorts
->
 > 									                                    them (descending). This might be useful for downloading many files
->
 > 									                                    of potentially highly varying file sizes.
 >
 > octocurl -p http://example.com/{1,2,3,4}.ts				            Fetches the file size when it is on queue.
