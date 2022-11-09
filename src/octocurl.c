@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -149,8 +150,7 @@ int main(int argc, char* argv[])
         if(qFilenameAllocated)
         {
             // Using regex to assign filename
-            regexToFilename(queues[index]->url, queues[index]->filename);
-            //queues[index]->filename = 
+            queues[index]->filename = regexToFilename(queues[index]->url);
         }
         else
         {
@@ -221,7 +221,7 @@ int main(int argc, char* argv[])
     {
         for(int index = 0; index < numOfURLs; index++)
         {
-            queues[index]->filename;
+            free(queues[index]->filename);
         }
     }
 
@@ -262,7 +262,7 @@ void handler(int num)
             {
                 for(int index = 0; index < numOfURLs; index++)
                 {
-                    queues[index]->filename;
+                    free(queues[index]->filename);
                 }
             }
             if(qQueuesAllocated == true)
