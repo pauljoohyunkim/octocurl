@@ -296,9 +296,20 @@ void showHelp()
     endwin();
     printf("Usage: octocurl [options] url1 [url2] [url...]\n"
            "\n"
-           "-c x\tSpecify the number of concurrent downloads (Default: 4)\n"
-           "-s\tPrefetch the file sizes and sort to download larger files first.\n"
-           "-p\tDo not prefetch the file size. (Fetching size when the file is on queue. (Ignored when -s is used)\n"
+           "-c x\t\t\tSpecify the number of concurrent downloads (Default: 4)\n"
+           "-s\t\t\tPrefetch the file sizes and sort to download larger files first.\n"
+           "-p\t\t\tDo not prefetch the file size. (Fetching size when the file is on queue. (Ignored when -s is used))\n"
+           "-r <regex>\t\tRegular expression of each url. (This option requires -o option.)\n"
+           "-o <filename form>\tForm of the output file name. (Use * for placeholder for the regex match)\n"
+           "\n"
+           "Examples:\n"
+           "octocurl http://example.com\t\t\t\t\t\tDownloads the webpage and saves it as \'example.com\'\n"
+           "octocurl -c 3 http://example.com/{1,2,3,4}.ts\t\t\t\tDownloads 1.ts, 2.ts, 3.ts, 4.ts with three workers.\n"
+           "octocurl -s http://example.com/{1,2,3,4}.ts\t\t\t\tPrefetches the file size before downloading the contents and sorts\n"
+           "\t\t\t\t\t\t\t\t\tthem (descending). This might be useful for downloading many files\n"
+           "\t\t\t\t\t\t\t\t\tof potentially highly varying file sizes.\n"
+           "octocurl -p http://example.com/{1,2,3,4}.ts\t\t\t\tFetches the file size when it is on queue.\n"
+           "octocurl -r \'[0-9].ts\' -o \'./*\' http://vid.com/{1,2}.ts-foo-bar\t\tUses regex to save the files as 1.ts, 2.ts\n"
           );
     exit(1);
 }
