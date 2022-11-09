@@ -1,10 +1,11 @@
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <regex.h>
 #include "filestring.h"
 
 extern regex_t regexFilter;
-extern outputFilterString[];
+extern char outputFilterString[];
 
 // Getting filename from URL
 char* filenameFromURL(char* URLString)
