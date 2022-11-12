@@ -72,6 +72,7 @@ int main(int argc, char* argv[])
             case 'h':
                 showHelp();
             case 'c':
+                ;
                 char *ptr;
                 concurrentDownloadNum = strtol(optarg, &ptr, 10);
                 
