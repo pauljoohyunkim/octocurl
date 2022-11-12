@@ -5,7 +5,7 @@ SRCDIR=src
 OBJDIR=obj
 BINDIR=bin
 TESTDIR=test
-OBJS = $(OBJDIR)/octocurl.o $(OBJDIR)/conn.o $(OBJDIR)/queue.o
+OBJS = $(OBJDIR)/octocurl.o $(OBJDIR)/conn.o $(OBJDIR)/queue.o $(OBJDIR)/filestring.o
 BIN = $(BINDIR)/octocurl
 TESTBIN = $(TESTDIR)/structtest
 

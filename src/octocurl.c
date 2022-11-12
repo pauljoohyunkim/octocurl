@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -7,19 +8,19 @@
 #include <pthread.h>
 #include <curl/curl.h>
 #include <ncurses.h>
+#include <regex.h>
 
 #include "octocurl.h"
 #include "conn.h"
 #include "queue.h"
 #include "structs.h"
+#include "filestring.h"
 
 unsigned int concurrentDownloadNum = DEFAULT_CONCURRENT_DOWNLOAD;
 unsigned int numOfURLs = 0;
 unsigned int queueNum = 0;
 URLQueue** queues;              // This replaced the array of URLs used before.
 bool qQueuesAllocated = false;
-//char** URLs;                    // Array of URLs
-//bool qURLsAllocated = false;    // Whether or not the URL array is allocated or not.
 pthread_t* threadPtr;           // Array of Threads
 bool qThreadAllocated = false;  // Whether or not the threadPtr is allocated or not.
 Status** statuses;              // Array of Status struct pointers for each worker.
@@ -28,11 +29,19 @@ bool qCurlGlobalInitialized = false;   // Curl Global Initialization
 pthread_mutex_t queueLock = PTHREAD_MUTEX_INITIALIZER;      // Mutex Lock for Worker Queue Read
 unsigned int* URLArgIndices;    // Indicies from argv which correspond to URL
 bool qURLArgIndicesAllocated = false;
+bool qFilenameAllocated = false;
 int terminalWidth;                 // The columns and rows for ncurses
 int y, x;                           // ncurses location
 
+// Regex Stuff
+regex_t regexFilter;                // Regex Type
+char regexFilterString[BUFSIZ];     // Regular expression to search against.
+char outputFilterString[BUFSIZ];    // Output filename with placeholder *
+
 bool optS = false;              // Whether or not quicksort is to be used or not.
 bool optP = false;              // Whether or not to prefetch file size.
+bool optR = false;              // Regex search to use
+bool optO = false;              // Output filename
 int main(int argc, char* argv[])
 {
     // Array of indices for URL arguments.
@@ -56,7 +65,7 @@ int main(int argc, char* argv[])
     }
     
     // ARGUMENT PARSING START
-    while((c = getopt(argc, argv, "hc:sp")) != -1)
+    while((c = getopt(argc, argv, "hc:spr:o:")) != -1)
     {
         switch(c)
         {
@@ -76,8 +85,9 @@ int main(int argc, char* argv[])
                 }
                 else
                 {
+                    endwin();
                     fprintf(stderr, "The number of concurrent download workers should be between %d and %d\n", MIN_CONCURRENT_DOWNLOAD, MAX_CONCURRENT_DOWNLOAD);
-                    return 1;
+                    return EXIT_FAILURE;
                 }
                 break;
             case 's':
@@ -88,7 +98,34 @@ int main(int argc, char* argv[])
                 optP = true;
                 printw("File size prefetch enabled.\n");
                 break;
+            case 'r':
+                optR = true;
+                strcpy(regexFilterString, optarg);
+
+                // Compiling the regex expression; exit if error
+                if(regcomp(&regexFilter, regexFilterString, 0))
+                {
+                    endwin();
+                    fprintf(stderr, "There was a problem with the given regular expression.\n");
+                    exit(1);
+                }
+                        
+                printw("Regular expression to use: %s\n", regexFilterString);
+                break;
+            case 'o':
+                optO = true;
+                strcpy(outputFilterString, optarg);
+                printw("Output file format with placeholder \'*\': %s\n", outputFilterString);
+                break;
         }
+    }
+
+    // -r option has to be used with -o option
+    if(optR && !optO)
+    {
+        endwin();
+        fprintf(stderr, "In order to use regex functionality, you need to use both -r and -o options.\n");
+        exit(1);
     }
 
 
@@ -102,12 +139,25 @@ int main(int argc, char* argv[])
     // Queue of URLs
     qQueuesAllocated = true;
     queues = (URLQueue**) malloc(numOfURLs * sizeof(URLQueue*));
+    if(optR && optO)
+    {
+        qFilenameAllocated = true;
+    }
     for(int index = 0; index < numOfURLs; index++)
     {
         queues[index] = (URLQueue*) malloc(sizeof(URLQueue));
         queues[index]->url = argv[URLArgIndices[index]];      // Copying pointer to each url to URLs array.
         printw("Added to queue: %s\n", queues[index]->url);
-        queues[index]->filename = filenameFromURL(queues[index]->url);  // Default name
+        if(qFilenameAllocated)
+        {
+            // Using regex to assign filename
+            queues[index]->filename = regexToFilename(queues[index]->url);
+        }
+        else
+        {
+            queues[index]->filename = filenameFromURL(queues[index]->url);  // Default name
+        }
+
         if(optS || optP)
         {
             queues[index]->nBytesToDownload = getSize(queues[index]->filename, queues[index]->url);                  // Prefetch file size.
@@ -168,7 +218,13 @@ int main(int argc, char* argv[])
 
 
     // Garbage Collection
-    //free(URLs);
+    if(qFilenameAllocated == true)
+    {
+        for(int index = 0; index < numOfURLs; index++)
+        {
+            free(queues[index]->filename);
+        }
+    }
 
     for(int index = 0; index < numOfURLs; index++)
     {
@@ -203,6 +259,13 @@ void handler(int num)
             {
                 free(URLArgIndices);
             }
+            if(qFilenameAllocated == true)
+            {
+                for(int index = 0; index < numOfURLs; index++)
+                {
+                    free(queues[index]->filename);
+                }
+            }
             if(qQueuesAllocated == true)
             {
                 for(int index = 0; index < numOfURLs; index++)
@@ -234,9 +297,20 @@ void showHelp()
     endwin();
     printf("Usage: octocurl [options] url1 [url2] [url...]\n"
            "\n"
-           "-c x\tSpecify the number of concurrent downloads (Default: 4)\n"
-           "-s\tPrefetch the file sizes and sort to download larger files first.\n"
-           "-p\tDo not prefetch the file size. (Fetching size when the file is on queue. (Ignored when -s is used)\n"
+           "-c x\t\t\tSpecify the number of concurrent downloads (Default: 4)\n"
+           "-s\t\t\tPrefetch the file sizes and sort to download larger files first.\n"
+           "-p\t\t\tDo not prefetch the file size. (Fetching size when the file is on queue. (Ignored when -s is used))\n"
+           "-r <regex>\t\tRegular expression of each url. (This option requires -o option.)\n"
+           "-o <filename form>\tForm of the output file name. (Use * for placeholder for the regex match)\n"
+           "\n"
+           "Examples:\n"
+           "octocurl http://example.com\t\t\t\t\t\tDownloads the webpage and saves it as \'example.com\'\n"
+           "octocurl -c 3 http://example.com/{1,2,3,4}.ts\t\t\t\tDownloads 1.ts, 2.ts, 3.ts, 4.ts with three workers.\n"
+           "octocurl -s http://example.com/{1,2,3,4}.ts\t\t\t\tPrefetches the file size before downloading the contents and sorts\n"
+           "\t\t\t\t\t\t\t\t\tthem (descending). This might be useful for downloading many files\n"
+           "\t\t\t\t\t\t\t\t\tof potentially highly varying file sizes.\n"
+           "octocurl -p http://example.com/{1,2,3,4}.ts\t\t\t\tFetches the file size when it is on queue.\n"
+           "octocurl -r \'[0-9].ts\' -o \'./*\' http://vid.com/{1,2}.ts-foo-bar\t\tUses regex to save the files as 1.ts, 2.ts\n"
           );
     exit(1);
 }
