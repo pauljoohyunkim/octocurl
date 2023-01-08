@@ -33,7 +33,7 @@ If you have sufficient bandwidth, you can download multiple files, each with ind
 
 ## Build
 ### Prerequisite
-You need ncurses and pthreads library to compile this.
+You need ncurses, libcurl, and pthreads library to compile this.
 
 ### Compilation (Building from Source)
 Currently, installation is not automatic.
