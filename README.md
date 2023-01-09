@@ -35,7 +35,7 @@ If you have sufficient bandwidth, you can download multiple files, each with ind
 ### Prerequisite
 You need ncurses and pthreads library to compile this.
 
-### Compilation (Building from Source)
+### Compilation (Make)
 Currently, installation is not automatic.
 
 Compiling for development can be done by issuing
@@ -47,6 +47,19 @@ Compiling for standard use can be done by issuing
 > make release
 
 This also creates the binary at bin/octocurl.
+
+### Compilation (CMake)
+If you prefer to use CMake:
+> mkdir build
+>
+> cd build
+>
+> cmake -S .. -B .
+>
+> make
+
+This creates the binary at build/octocurl.
+
 
 ## Testing
 > \# You can test if it works by:
