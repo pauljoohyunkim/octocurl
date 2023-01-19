@@ -155,7 +155,14 @@ int main(int argc, char* argv[])
         }
         else
         {
-            queues[index]->filename = filenameFromURL(queues[index]->url);  // Default name
+            if(!optO)
+            {
+                queues[index]->filename = filenameFromURL(queues[index]->url);  // Default name
+            }
+            else
+            {
+                queues[index]->filename = outputFilterString;
+            }
         }
 
         if(optS || optP)
